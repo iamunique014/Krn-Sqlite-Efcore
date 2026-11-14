@@ -1,0 +1,334 @@
+﻿@using KasiRoomNetwork.Common.ViewModel.Profiles
+@model ProfilePageViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+
+    var isLandlord = ViewBag.IsLandlord as bool? ?? false;
+    var returnUrl = ViewBag.ReturnUrl as string;
+    var profilePrompt = ViewBag.ProfilePrompt as string;
+    var completedFields = 0;
+
+    if (!string.IsNullOrWhiteSpace(Model?.UserProfile?.FullName)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.UserProfile?.PhoneNumber)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.UserProfile?.City)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.UserProfile?.Province)) completedFields++;
+
+    var totalFields = isLandlord ? 5 : 4;
+
+    if (isLandlord && !string.IsNullOrWhiteSpace(Model?.LandlordProfile?.Bio))
+    {
+        completedFields++;
+    }
+
+    var completionPercent = (completedFields * 100) / totalFields;
+}
+
+<div class="container py-4" style="max-width:900px;">
+
+    <!-- Header -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold mb-1">My Profile</h1>
+
+            <p class="text-muted mb-0">
+                @(isLandlord
+                                ? "Complete your profile so tenants can trust and contact you."
+                                : "Complete your profile to unlock messaging and contact landlords.")
+            </p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            <a href="@returnUrl" class="btn btn-outline-secondary">
+                Cancel
+            </a>
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(profilePrompt))
+    {
+        <div class="alert alert-info">
+            @profilePrompt
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (completionPercent == 100)
+    {
+        @if (isLandlord && Model.LandlordProfile.IsVerified)
+        {
+            <div class="alert alert-success border-0 shadow-sm">
+                <strong>Profile Complete!</strong>
+                <span>
+                    Your profile is ready for tenants to view.
+                </span>
+            </div>
+        }
+        else if (!isLandlord)
+        {
+            <div class="alert alert-success border-0 shadow-sm">
+                <strong>Profile Complete!</strong>
+                <span>
+                    You're ready to contact landlords.
+                </span>
+            </div>
+                
+        }    
+    }
+
+    <!-- Landlord Verification -->
+    @if (isLandlord)
+    {
+        <div class="card shadow-sm border-0 mb-4">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <h5 class="mb-1">Trust Status</h5>
+
+                        @if (Model.LandlordProfile.IsVerified)
+                        {
+                            <span class="badge bg-success">
+                                Approved Landlord
+                            </span>
+
+                            <p class="text-success mt-2 mb-0">
+                                Everything looks good, You can start advertising your rooms.
+                            </p>
+                        }
+                        else if(!string.IsNullOrWhiteSpace(Model.LandlordProfile.VerificationNotes))
+                        {
+                            <span class="badge bg-danger">
+                                Required Action
+                            </span>
+
+                            <p class="text-danger mt-2 mb-0">
+                                @Model.LandlordProfile.VerificationNotes
+                            </p>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">
+                                Under Review
+                            </span>
+
+                            <p class="text-muted mt-2 mb-0">
+                                Keep your details accurate while your account is being reviewed.
+                            </p>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+    <!-- Completion Card -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-semibold">Profile Completion</span>
+                <span class="fw-bold">@completionPercent%</span>
+            </div>
+
+            <div class="progress" style="height:10px;">
+                <div class="progress-bar @(completionPercent == 100 ? "bg-success" : "")"
+                     style="width:@completionPercent%">
+                </div>
+            </div>
+
+            <small class="text-muted d-block mt-2">
+                Completed @completedFields of @totalFields required fields.
+            </small>
+
+        </div>
+
+    </div>
+
+    <div asp-validation-summary="ModelOnly"
+         class="alert alert-danger">
+    </div>
+
+    <form asp-action="MyProfile" method="post">
+
+        @Html.AntiForgeryToken()
+
+        @if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            <input type="hidden"
+                   name="returnUrl"
+                   value="@returnUrl" />
+        }
+
+        <!-- Personal Information -->
+
+        <div class="card shadow-sm border-0 mb-4">
+
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Personal Information</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label asp-for="UserProfile.FullName" class="form-label">Full Name<span class="text-danger">*</span></label>
+                    <input asp-for="UserProfile.FullName" class="form-control" />
+                    <span asp-validation-for="UserProfile.FullName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserProfile.PhoneNumber" class="form-label">Phone Number<span class="text-danger">*</span></label>
+                    <input asp-for="UserProfile.PhoneNumber" class="form-control" />
+                    <span asp-validation-for="UserProfile.PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserProfile.City" class="form-label">City<span class="text-danger">*</span></label>
+                    <input asp-for="UserProfile.City" class="form-control" />
+                    <span asp-validation-for="UserProfile.City" class="text-danger"></span>
+                </div>
+
+                <div class="mb-0">
+                    <label asp-for="UserProfile.Province" class="form-label">Province<span class="text-danger">*</span></label>
+
+                    <select asp-for="UserProfile.Province" class="form-select">
+                        <option value="">Select Province</option>
+                        <option>Gauteng</option>
+                        <option>North West</option>
+                        <option>Mpumalanga</option>
+                        <option>Limpopo</option>
+                        <option>Free State</option>
+                        <option>KwaZulu-Natal</option>
+                        <option>Eastern Cape</option>
+                        <option>Western Cape</option>
+                        <option>Northern Cape</option>
+                    </select>
+
+                    <span asp-validation-for="UserProfile.Province" class="text-danger"></span>
+                </div>
+
+            </div>
+
+        </div>
+
+        @if (isLandlord)
+        {
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Public Profile</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+
+                        <label asp-for="LandlordProfile.WhatsAppNumber"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="LandlordProfile.WhatsAppNumber"
+                               class="form-control"
+                               placeholder="0812345678" />
+
+                        <small class="text-muted">
+                            Optional. Tenants can contact you directly via WhatsApp.
+                        </small>
+
+                        <span asp-validation-for="LandlordProfile.WhatsAppNumber"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <div>
+
+                        <label asp-for="LandlordProfile.Bio"
+                               class="form-label">
+                            Bio
+                        </label>
+
+                        <textarea asp-for="LandlordProfile.Bio"
+                                  class="form-control"
+                                  rows="5"
+                                  placeholder="Tell tenants a little about yourself and your property.">
+                            </textarea>
+
+                        <span asp-validation-for="LandlordProfile.Bio"
+                              class="text-danger"></span>
+
+                        <small class="text-muted">
+                            A good profile increases trust and response rates.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+        <!-- Actions -->
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+
+            <div>
+
+                @if (!string.IsNullOrWhiteSpace(returnUrl))
+                {
+                    <a href="@returnUrl"
+                       class="btn btn-outline-secondary">
+                        Back
+                    </a>
+                }
+                else if (isLandlord)
+                {
+                    <a asp-controller="Landlord"
+                       asp-action="LandlordDashboard"
+                       class="btn btn-outline-secondary">
+                        Dashboard
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Tenant"
+                       asp-action="TenantDashboard"
+                       class="btn btn-outline-secondary">
+                        Dashboard
+                    </a>
+                }
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary px-4">
+                Save Profile
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

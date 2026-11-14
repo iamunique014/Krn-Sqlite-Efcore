@@ -1,0 +1,88 @@
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Admin.UnverifiedListingViewModel>
+
+@{
+    ViewData["Title"] = "Unverified Listings";
+}
+
+<h2 class="mb-4"> Unverified Listings</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h4 class="text-success"> All caught up!</h4>
+        <p class="text-muted">
+            There are no listings waiting for verification right now.
+        </p>
+    </div>
+}
+
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Property Name</th>
+                    <th>Price</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Verified At</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.Title</strong></td>
+                        <td>@item.Suburb, @item.City</td>
+                        <td>@item.PropertyName</td>
+                        <td>R @item.Price</td>
+                        <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>@if (!item.IsVerified && item.VerifiedOn != DateTime.MinValue)
+                            {
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">
+                                    Pending
+                                </span>
+                            }
+
+                        </td>
+                        <td>@item.VerifiedOn.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <a asp-action="ReviewListing"
+                               asp-route-id="@item.ListingId"
+                               class="btn btn-sm btn-primary">
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
+}

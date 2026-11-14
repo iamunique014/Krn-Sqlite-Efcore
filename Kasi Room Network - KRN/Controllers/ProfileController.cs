@@ -1,0 +1,117 @@
+﻿using KasiRoomNetwork.Common.ViewModel.Profiles;
+using KasiRoomNetwork.Data.Domain.Models;
+using KasiRoomNetwork.Data.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Kasi_Room_Network___KRN.Controllers
+{
+    [Authorize]
+    public class ProfileController : Controller
+    {
+        private readonly IProfileRepository _profileRepository;
+        private readonly ILogger<ProfileController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public ProfileController(IProfileRepository profileRepository, ILogger<ProfileController> logger, UserManager<ApplicationUser> userManager)
+        {
+            _profileRepository = profileRepository;
+            _logger = logger;
+            _userManager = userManager;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyProfile(string? returnUrl)
+        {
+            var userId = _userManager.GetUserId(User);
+            var isLandlord = User.IsInRole("Landlord");
+           
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge();
+            }
+
+            //await PopulateLandlordProfileAsync(userId);
+            ViewBag.IsLandlord = isLandlord;
+            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.ProfilePrompt = TempData["ProfilePrompt"] as string;
+
+            var profile = await _profileRepository.GetByUserId(userId);
+
+            return View(profile ?? new ProfilePageViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MyProfile(ProfilePageViewModel model, string? returnUrl)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.IsLandlord = User.IsInRole("Landlord");
+                ViewBag.ReturnUrl = returnUrl;
+
+                return View(model);
+            }
+
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge();
+            }
+
+
+            var isLandlord = User.IsInRole("Landlord");
+            try
+            {
+                if (isLandlord)
+                {
+                    await _profileRepository.SaveLandlordProfile(model, userId);
+                }
+                else
+                {
+                    await _profileRepository.SaveProfile(model, userId);
+                }
+
+                TempData["SuccessMessage"] = "Profile saved successfully";
+                _logger.LogInformation("User {UserId} saved profile successfully", userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "User {User} Could not save profile. Failure.",
+                    userId
+                );
+                ModelState.AddModelError("", "Unable to save profile at this time. Please try again later.");
+                ViewBag.IsLandlord = isLandlord;
+                ViewBag.ReturnUrl = returnUrl;
+                return View(model);
+            }
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                TempData.Remove("SuccessMessage");
+                return Redirect(returnUrl);
+            }
+
+            if (User.IsInRole("Landlord"))
+            {
+                return RedirectToAction("LandlordDashboard", "Landlord");
+            }
+
+            return RedirectToAction("TenantDashboard", "Tenant");
+        }
+
+        //private async Task PopulateLandlordProfileAsync(string userId)
+        //{
+        //    var isLandlord = User.IsInRole("Landlord");
+        //    ViewBag.IsLandlord = isLandlord;
+
+        //    if (isLandlord)
+        //    {
+        //        ViewBag.LandlordProfile = await _profileRepository.GetLandlordPublic(userId);
+        //    }
+        //}
+    }
+}

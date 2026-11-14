@@ -1,0 +1,516 @@
+﻿@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Kasi Room Network";
+}
+<div class="container-fluid px-2">
+
+    <!-- HERO -->
+    <section class="pt-4 pt-md-5 bg-light  min-vh-100 ">
+
+        <div class="container text-center">
+
+            <i class="bi bi-house-door-fill text-primary"
+               style="font-size: 4rem;"></i>
+
+            <h1 class="display-5 fw-bold mt-3">
+                Find a room fast and easy
+            </h1>
+
+            <p class="lead text-muted mt-3">
+                From local landlords in mining towns,
+                townships, and growing communities across Rustenburg.
+            </p>
+
+            <!-- SEARCH -->
+            <form asp-controller="Listing"
+                  asp-action="SearchListings"
+                  method="get"
+                  class="card shadow-sm border-0 mt-4 mx-auto"
+                  style="max-width: 800px;">
+
+                <div class="card-body">
+
+                    <div class="row g-2">
+
+                        <div class="col-md-5">
+                            <input name="City"
+                                   class="form-control form-control-lg"
+                                   placeholder="City" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <input type="number"
+                                   name="MaxPrice"
+                                   class="form-control form-control-lg"
+                                   placeholder="Maximum Monthly Rent" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="submit"
+                                    class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-search"></i>
+                                Search
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+
+            <!-- CTA BUTTONS -->
+            <div class="row g-2 justify-content-center mt-4">
+
+                <div class="col-10 col-md-6">
+                    <a href="/Landlord/LandlordDashboard"
+                       class="btn btn-outline-primary btn-lg w-100">
+                        <i class="bi bi-house-add-fill me-1"></i>
+                        Post a Room
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- WHY KRN -->
+    <!-- TRUST BANNER -->
+    <section class="py-4 bg-white border-top border-bottom">
+
+        <div class="container">
+
+            <div class="text-center mb-3">
+                <small class="text-uppercase text-muted fw-semibold">
+                    Trusted by tenants and landlords
+                </small>
+            </div>
+
+            <div class="row text-center g-3 justify-content-center">
+
+                <div class="col-6 col-md-3">
+
+                    <div class="fw-semibold">
+
+                        <i class="bi bi-patch-check-fill text-success me-2"></i>
+                        Approved Listings
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="col-6 col-md-3">
+
+                    <div class="fw-semibold">
+
+                        <i class="bi bi-camera-fill text-warning me-2"></i>
+                        Real Photos
+
+                    </div>
+
+                </div>
+
+                <div class="col-6 col-md-3">
+
+                    <div class="fw-semibold">
+
+                        <i class="bi bi-chat-left-text-fill text-info me-2"></i>
+                        Safe Messaging
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FEATURED LISTINGS -->
+    <section class="py-5 bg-light">
+
+        <div class="container">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <h2 class="fw-bold mb-0">
+                    Featured Properties
+                </h2>
+
+                <a href="/Listing/SearchListings"
+                   class="btn btn-outline-primary btn-sm">
+                    Search Rooms
+                </a>
+
+            </div>
+
+            <div id="featured-properties">
+
+                @* Render latest verified listings here *@
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- HOW IT WORKS -->
+
+    <section class="py-5">
+
+        <div class="container">
+
+            <div class="text-center mb-5">
+
+                <h2 class="fw-bold">
+                    How It Works
+                </h2>
+
+                <p class="text-muted">
+                    Whether you're looking for a room or renting one out,
+                    getting started is simple.
+                </p>
+
+            </div>
+
+            <ul class="nav nav-pills justify-content-center mb-2"
+                id="howItWorksTabs"
+                role="tablist">
+
+                <li class="nav-item" role="presentation">
+
+                    <button class="nav-link active"
+                            id="tenant-tab"
+                            data-bs-toggle="pill"
+                            data-bs-target="#tenant-content"
+                            type="button">
+
+                        <i class="bi bi-person-fill me-2"></i>
+                        Tenants
+
+                    </button>
+
+                </li>
+
+                <li class="nav-item" role="presentation">
+
+                    <button class="nav-link"
+                            id="landlord-tab"
+                            data-bs-toggle="pill"
+                            data-bs-target="#landlord-content"
+                            type="button">
+
+                        <i class="bi bi-house-door-fill me-2"></i>
+                        Landlords
+
+                    </button>
+
+                </li>
+
+            </ul>
+
+            <div class="tab-content">
+
+                <!-- TENANTS -->
+                <div class="tab-pane fade show active"
+                     id="tenant-content">
+
+                    <div class="row g-4 text-center">
+
+                        <div class="col-6 col-md-3">
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body">
+
+                                    <i class="bi bi-search text-success fs-1"></i>
+
+                                    <h5 class="mt-3">
+                                        Search
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        Find rooms in your area.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-6 col-md-3">
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body">
+
+                                    <i class="bi bi-patch-check-fill text-primary fs-1"></i>
+
+                                    <h5 class="mt-3">
+                                        Verify
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        View trusted listings.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-6 col-md-3">
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body">
+
+                                    <i class="bi bi-chat-dots-fill text-warning fs-1"></i>
+
+                                    <h5 class="mt-3">
+                                        Contact
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        Message landlords safely.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-6 col-md-3">
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body">
+
+                                    <i class="bi bi-house-check-fill text-info fs-1"></i>
+
+                                    <h5 class="mt-3">
+                                        Move In
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        Arrange viewing and move in.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- LANDLORDS -->
+                <div class="tab-pane fade"
+                     id="landlord-content">
+
+                    <div class="row g-4 text-center">
+
+                        <div class="col-6 col-md-3">
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body">
+
+                                    <i class="bi bi-pencil-square text-primary fs-1"></i>
+
+                                    <h5 class="mt-3">
+                                        Create
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        Add your room listing.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-6 col-md-3">
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body">
+
+                                    <i class="bi bi-camera-fill text-warning fs-1"></i>
+
+                                    <h5 class="mt-3">
+                                        Upload
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        Add room photos.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-6 col-md-3">
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body">
+
+                                    <i class="bi bi-shield-check text-success fs-1"></i>
+
+                                    <h5 class="mt-3">
+                                        Verify
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        Get listing approval.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-6 col-md-3">
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body">
+
+                                    <i class="bi bi-people-fill text-info fs-1"></i>
+
+                                    <h5 class="mt-3">
+                                        Connect
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        Receive tenant enquiries.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+     
+
+    </section>
+
+    <!-- COMMUNITIES -->
+    <section class="py-5 bg-light">
+
+        <div class="container text-center">
+
+            <i class="bi bi-geo-alt-fill text-danger"
+               style="font-size: 3rem;"></i>
+
+            <h2 class="fw-bold mt-3">
+                Built for South African Communities
+            </h2>
+
+            <p class="text-muted mt-3">
+                Helping workers, students, and families find accommodation
+                in mining towns, township communities, and growing urban areas.
+            </p>
+
+            <p class="fw-semibold">
+                Rustenburg • Noord • Tlhabane • Phokeng
+            </p>
+
+            <p class="text-muted small">
+                More communities coming soon.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- FINAL CTA -->
+    <section class="py-5">
+
+        <div class="container">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center py-5">
+
+                    <h2 class="fw-bold">
+                        Ready to Find Your Next Room?
+                    </h2>
+
+                    <p class="text-muted">
+                        Start browsing our catalogue of room listings today.
+                    </p>
+
+                    <div class="row g-2 justify-content-center mt-3">
+
+                        <div class="col-12 col-md-auto">
+
+                            <a href="/Listing/SearchListings"
+                               class="btn btn-primary btn-lg w-100">
+                                Find a Room
+                            </a>
+
+                        </div>
+
+                        <div class="col-12 col-md-auto">
+
+                            <a href="/Landlord/LandlordDashboard"
+                               class="btn btn-outline-primary btn-lg w-100">
+                                Post a Room
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+</div>
+
+
+@section Scripts{
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+
+            const response = await fetch("/Home/FeaturedProperties");
+
+            if (response.ok) {
+                document.getElementById("featured-properties").innerHTML =
+                    await response.text();
+            }
+        });
+    </script>
+}

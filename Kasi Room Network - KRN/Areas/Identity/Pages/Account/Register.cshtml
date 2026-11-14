@@ -1,0 +1,159 @@
+﻿@page
+@using Kasi_Room_Network___KRN.Constants
+@model RegisterModel
+@{
+    ViewData["Title"] = "Join KRN";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container px-1">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-6 col-md-8">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    <div class="text-center mb-4">
+                        <h1 id="registerTitle" class="fw-bold">Join Kasi Room Network</h1>
+                        <p id="registerSubtitle" class="text-muted mb-0">
+                            Choose how you want to use KRN.
+                        </p>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
+
+                    <form id="registerForm"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Email" class="form-label"></label>
+                            <input asp-for="Input.Email"
+                                   class="form-control"
+                                   autocomplete="username" />
+
+                            <span asp-validation-for="Input.Email"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Role"
+                                   class="form-label">
+                                I want to join as
+                            </label>
+
+                            <select asp-for="Input.Role"
+                                    class="form-select">
+
+                                @foreach (var role in Enum.GetValues(typeof(Roles))
+                                                                .Cast<Roles>()
+                                                                .Where(r => r != Roles.Admin))
+                                {
+                                    <option value="@role">@role</option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="Input.Role"
+                                  class="text-danger"></span>
+                        </div>                       
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Password"
+                                   class="form-label"></label>
+
+                            <input asp-for="Input.Password"
+                                   class="form-control"
+                                   autocomplete="new-password" />
+
+                            <span asp-validation-for="Input.Password"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.ConfirmPassword"
+                                   class="form-label"></label>
+
+                            <input asp-for="Input.ConfirmPassword"
+                                   class="form-control"
+                                   autocomplete="new-password" />
+
+                            <span asp-validation-for="Input.ConfirmPassword"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-info py-2 small">
+                            <strong>Password Requirements</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>Minimum 8 characters</li>
+                                <li>At least one uppercase letter (A-Z)</li>
+                                <li>At least one lowercase letter (a-z)</li>
+                                <li>At least one number (0-9)</li>
+                                <li>At least one special character (!@@#$%^&* etc.)</li>
+                            </ul>
+                        </div>
+
+                        <button id="registerSubmit"
+                                type="submit"
+                                class="btn btn-primary w-100">
+                            Create Account
+                        </button>
+
+                    </form>
+
+                    <div class="text-center m-3">
+                        <p class="mb-0">
+                            Already have an account?
+                            <a asp-page="./Login"
+                               asp-route-returnUrl="@Model.ReturnUrl"
+                               class="fw-semibold">
+                                Sign In
+                            </a>
+                        </p>
+                    </div>
+
+                    <hr />
+
+                    <div id="registerDescription" class="text-center small text-muted">
+                        Create an account to start using KRN.
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        
+        const role = document.getElementById("Input_Role");
+        const subtitle =  document.getElementById("registerSubtitle");
+        const description = document.getElementById("registerDescription");
+
+        function updateContent(){
+            if(role.value == "Landlord"){
+                subtitle.textContent = "List your rooms, manage your properties and Get tenants fast";
+                description.textContent = "Create an account to publish rentals and connect with tenants through secure messaging";
+            }
+            else{
+                subtitle.textContent = "Find budget friendly rooms with ease";
+                description.textContent = "Create an account to contact landlords safely."
+            }
+        }
+
+        role.addEventListener("change", updateContent);
+        updateContent();
+
+    </script>
+}
