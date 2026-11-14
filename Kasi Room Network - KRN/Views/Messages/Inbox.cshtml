@@ -1,0 +1,91 @@
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Messaging.ConversationViewModel>
+
+@{
+    ViewData["Title"] = "Inbox";
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No messages yet.
+    </div>
+}
+else
+{
+
+    <div class="list-group shadow-sm">
+
+        @foreach (var conversation in Model)
+        {
+            var preview = conversation.LastMessage;
+
+            if (!string.IsNullOrWhiteSpace(preview))
+            {
+                if (preview.Length > 40)
+                {
+                    preview = preview.Substring(0, 40) + "...";
+                }
+
+               <a asp-controller="Messages"
+               asp-action="Conversation"
+               asp-route-conversationId="@conversation.ConversationId"
+               class="list-group-item list-group-item-action @(conversation.UnreadCount > 0 ? "bg-light" : "")">
+
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <div class="flex-grow-1">
+
+                        <div class="fw-bold">
+                            @conversation.ListingTitle
+                        </div>
+
+                        <div class="small text-dark">
+                            @conversation.OtherUserName
+                        </div>
+
+                        <div class="@(conversation.UnreadCount > 0 ? "text-success" : "text-muted")">
+                            @preview
+                        </div>
+
+                    </div>
+
+                    <div class="text-end ms-3">
+
+                        <small class="text-muted d-block">
+                            @{
+                                var now = DateTime.Now;
+                                var lastMessageAt = conversation.LastMessageAt;
+
+                                if (lastMessageAt.Date == now.Date)
+                                {
+                                    @:Today @lastMessageAt.ToString("HH:mm")
+                                }
+                                else if (lastMessageAt.Date == now.Date.AddDays(-1))
+                                {
+                                    @:Yesterday @lastMessageAt.ToString("HH:mm")
+                                }
+                                else
+                                {
+                                    @lastMessageAt.ToString("dd MMM yyyy")
+                                }
+                            }
+                        </small>
+
+                        @if (conversation.UnreadCount > 0)
+                        {
+                            <span class="badge bg-success mt-1">
+                                @conversation.UnreadCount
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </a>
+            }
+
+        }
+
+    </div>
+}

@@ -1,0 +1,101 @@
+using Kasi_Room_Network___KRN.Areas.Identity.Data;
+using KasiRoomNetwork.Data.DataAccess;
+using KasiRoomNetwork.Data.Domain.Models;
+using KasiRoomNetwork.Data.Interfaces;
+using KasiRoomNetwork.Data.Repositories;
+using Kasi_Room_Network___KRN.Services;
+using Kasi_Room_Network___KRN.Configuration;
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configure EF Core with SQL Server connection
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("conn")));
+
+// Add ASP.NET Core Identity with default options and role support
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false; // Set to true if email confirmation is needed
+    // Configure password requirements if desired:
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddTransient<ISqlDataAccess, SqlDataAccess>();
+builder.Services.AddScoped<IListingRepository, ListingRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<ILandlordRepository, LandlordRepository>();
+builder.Services.AddScoped<IProfileRepository,  ProfileRepository>();
+builder.Services.AddScoped<IMessagingRepository, MessagingRepository>();
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
+builder.Services.AddScoped<IHomeRepository, HomeRepository>();
+builder.Services.AddScoped<IPostRoomWizardService, PostRoomWizardService>();
+builder.Services.AddScoped<ICreatePropertyService, CreatePropertyService>();
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddScoped<IPhotoStorageService, AzureBlobStorageService>();
+}
+else
+{
+    builder.Services.AddScoped<IPhotoStorageService, LocalStorageService>();
+}
+
+builder.Services.Configure<AzureStorageConfig>(builder.Configuration.GetSection("AzureStorage"));
+builder.Services.AddHostedService<WizardTempCleanupHostedService>();
+
+builder.Services.AddRazorPages();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseSession();
+
+// Enable authentication and authorization middleware
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapRazorPages();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+using (var scope = app.Services.CreateScope())
+{
+    await DBseeder.SeedRolesAndAdminAsync(scope.ServiceProvider);
+}
+
+app.Run();
