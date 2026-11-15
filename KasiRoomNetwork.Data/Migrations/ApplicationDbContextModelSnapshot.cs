@@ -3,7 +3,6 @@ using System;
 using KasiRoomNetwork.Data.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -16,74 +15,203 @@ namespace KasiRoomNetwork.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.22")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.22");
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Address", b =>
+                {
+                    b.Property<int>("AddressId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool?>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Street")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Suburb")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("AddressId");
+
+                    b.HasIndex("Province", "City", "Suburb")
+                        .HasDatabaseName("IX_Address_Search");
+
+                    b.ToTable("Address", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Address_IsActive", "IsActive IS NULL OR IsActive IN (0, 1)");
+                        });
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.AdminVerificationLog", b =>
+                {
+                    b.Property<int>("LogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Action")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AdminUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("EntityType")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LogId");
+
+                    b.HasIndex("AdminUserId");
+
+                    b.ToTable("AdminVerificationLogs", (string)null);
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Amenity", b =>
+                {
+                    b.Property<int>("AmenityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("AmenityId");
+
+                    b.ToTable("Amenity", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Amenity_IsActive", "IsActive IN (0, 1)");
+                        });
+                });
 
             modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -92,35 +220,520 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Conversation", b =>
+                {
+                    b.Property<int>("ConversationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<string>("LandlordId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastMessageAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ListingId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ConversationId");
+
+                    b.HasIndex("LandlordId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("ListingId", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Conversation");
+
+                    b.ToTable("Conversation", (string)null);
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.LandlordProfile", b =>
+                {
+                    b.Property<int>("LandlordProfileId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VerificationNotes")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VerifiedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WhatsAppNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LandlordProfileId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Landlord_User");
+
+                    b.HasIndex("VerifiedBy");
+
+                    b.ToTable("LandlordProfiles", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LandlordProfiles_WhatsAppNumber", "WhatsAppNumber IS NULL OR length(WhatsAppNumber) BETWEEN 10 AND 20");
+                        });
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Listing", b =>
+                {
+                    b.Property<int>("ListingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AvailableUnits")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LandlordUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("NUMERIC");
+
+                    b.Property<int>("PropertyId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Active");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VerificationNotes")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VerifiedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("VerifiedOn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ListingId");
+
+                    b.HasIndex("LandlordUserId");
+
+                    b.HasIndex("Price");
+
+                    b.HasIndex("PropertyId");
+
+                    b.HasIndex("VerifiedBy");
+
+                    b.HasIndex("IsAvailable", "IsVerified", "Price")
+                        .HasDatabaseName("IX_Listings_Search");
+
+                    b.ToTable("Listings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Listings_AvailableUnits", "AvailableUnits >= 0");
+
+                            t.HasCheckConstraint("CK_Listings_IsActive", "IsActive IN (0, 1)");
+
+                            t.HasCheckConstraint("CK_Listings_IsAvailable", "IsAvailable IN (0, 1)");
+
+                            t.HasCheckConstraint("CK_Listings_IsVerified", "IsVerified IN (0, 1)");
+
+                            t.HasCheckConstraint("CK_Listings_Price", "Price >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.ListingContactLog", b =>
+                {
+                    b.Property<int>("ContactLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ContactMethod")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ConversationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<int>("ListingId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ContactLogId");
+
+                    b.HasIndex("ConversationId");
+
+                    b.HasIndex("ListingId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ListingContactLog", (string)null);
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.ListingPhoto", b =>
+                {
+                    b.Property<int>("PhotoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsPrimary")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("ListingId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PhotoPath")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("PhotoId");
+
+                    b.HasIndex("ListingId");
+
+                    b.ToTable("ListingPhotos", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ListingPhotos_IsActive", "IsActive IN (0, 1)");
+
+                            t.HasCheckConstraint("CK_ListingPhotos_IsPrimary", "IsPrimary IN (0, 1)");
+                        });
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Message", b =>
+                {
+                    b.Property<int>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ConversationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("MessageText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("ConversationId", "CreatedAt")
+                        .HasDatabaseName("IX_Message_ConversationId_CreatedAt");
+
+                    b.ToTable("Message", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Message_IsDeleted", "IsDeleted IN (0, 1)");
+
+                            t.HasCheckConstraint("CK_Message_IsRead", "IsRead IN (0, 1)");
+                        });
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Property", b =>
+                {
+                    b.Property<int>("PropertyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AddressId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LandlordId")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PropertyName")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PropertyType")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("TotalRooms")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("VerificationNotes")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VerifiedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("VerifiedOn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("PropertyId");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("LandlordId");
+
+                    b.HasIndex("VerifiedBy");
+
+                    b.ToTable("Properties", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Properties_IsActive", "IsActive IN (0, 1)");
+
+                            t.HasCheckConstraint("CK_Properties_IsVerified", "IsVerified IN (0, 1)");
+                        });
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.PropertyAmenity", b =>
+                {
+                    b.Property<int>("PropertyAmenityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AmenityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PropertyId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PropertyAmenityId");
+
+                    b.HasIndex("AmenityId");
+
+                    b.HasIndex("PropertyId", "AmenityId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_PropertyAmenity");
+
+                    b.ToTable("PropertyAmenity", (string)null);
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.PropertyPhoto", b =>
+                {
+                    b.Property<int>("PhotoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsPrimary")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("PhotoPath")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PropertyId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PhotoId");
+
+                    b.HasIndex("PropertyId");
+
+                    b.ToTable("PropertyPhoto", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_PropertyPhoto_IsActive", "IsActive IN (0, 1)");
+
+                            t.HasCheckConstraint("CK_PropertyPhoto_IsPrimary", "IsPrimary IN (0, 1)");
+                        });
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.UserProfile", b =>
+                {
+                    b.Property<int>("UserProfileId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("strftime('%Y-%m-%dT%H:%M:%fZ','now')");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Province")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserProfileId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_UserProfiles_User");
+
+                    b.ToTable("UserProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -129,19 +742,17 @@ namespace KasiRoomNetwork.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -154,19 +765,17 @@ namespace KasiRoomNetwork.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -179,18 +788,18 @@ namespace KasiRoomNetwork.Data.Migrations
                 {
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderKey")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -202,10 +811,10 @@ namespace KasiRoomNetwork.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -217,22 +826,223 @@ namespace KasiRoomNetwork.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.AdminVerificationLog", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "AdminUser")
+                        .WithMany("AdminVerificationLogs")
+                        .HasForeignKey("AdminUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AdminUser");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Conversation", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "Landlord")
+                        .WithMany("LandlordConversations")
+                        .HasForeignKey("LandlordId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Listing", "Listing")
+                        .WithMany("Conversations")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "Tenant")
+                        .WithMany("TenantConversations")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Landlord");
+
+                    b.Navigation("Listing");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.LandlordProfile", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "User")
+                        .WithOne("LandlordProfile")
+                        .HasForeignKey("KasiRoomNetwork.Data.Domain.Models.LandlordProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "Verifier")
+                        .WithMany("VerifiedLandlordProfiles")
+                        .HasForeignKey("VerifiedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
+
+                    b.Navigation("Verifier");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Listing", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "Landlord")
+                        .WithMany("LandlordListings")
+                        .HasForeignKey("LandlordUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Property", "Property")
+                        .WithMany("Listings")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "Verifier")
+                        .WithMany("VerifiedListings")
+                        .HasForeignKey("VerifiedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Landlord");
+
+                    b.Navigation("Property");
+
+                    b.Navigation("Verifier");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.ListingContactLog", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Conversation", "Conversation")
+                        .WithMany("ContactLogs")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Listing", "Listing")
+                        .WithMany("ContactLogs")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "User")
+                        .WithMany("ListingContactLogs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Listing");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.ListingPhoto", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Listing", "Listing")
+                        .WithMany("Photos")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Listing");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Message", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Conversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "Sender")
+                        .WithMany("SentMessages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Property", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Address", "Address")
+                        .WithMany("Properties")
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "Landlord")
+                        .WithMany("LandlordProperties")
+                        .HasForeignKey("LandlordId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "Verifier")
+                        .WithMany("VerifiedProperties")
+                        .HasForeignKey("VerifiedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Landlord");
+
+                    b.Navigation("Verifier");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.PropertyAmenity", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Amenity", "Amenity")
+                        .WithMany("PropertyAmenities")
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Property", "Property")
+                        .WithMany("PropertyAmenities")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Amenity");
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.PropertyPhoto", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.Property", "Property")
+                        .WithMany("Photos")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.UserProfile", b =>
+                {
+                    b.HasOne("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", "User")
+                        .WithOne("UserProfile")
+                        .HasForeignKey("KasiRoomNetwork.Data.Domain.Models.UserProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -284,6 +1094,68 @@ namespace KasiRoomNetwork.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Address", b =>
+                {
+                    b.Navigation("Properties");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Amenity", b =>
+                {
+                    b.Navigation("PropertyAmenities");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("AdminVerificationLogs");
+
+                    b.Navigation("LandlordConversations");
+
+                    b.Navigation("LandlordListings");
+
+                    b.Navigation("LandlordProfile");
+
+                    b.Navigation("LandlordProperties");
+
+                    b.Navigation("ListingContactLogs");
+
+                    b.Navigation("SentMessages");
+
+                    b.Navigation("TenantConversations");
+
+                    b.Navigation("UserProfile");
+
+                    b.Navigation("VerifiedLandlordProfiles");
+
+                    b.Navigation("VerifiedListings");
+
+                    b.Navigation("VerifiedProperties");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Conversation", b =>
+                {
+                    b.Navigation("ContactLogs");
+
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Listing", b =>
+                {
+                    b.Navigation("ContactLogs");
+
+                    b.Navigation("Conversations");
+
+                    b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Property", b =>
+                {
+                    b.Navigation("Listings");
+
+                    b.Navigation("Photos");
+
+                    b.Navigation("PropertyAmenities");
                 });
 #pragma warning restore 612, 618
         }
