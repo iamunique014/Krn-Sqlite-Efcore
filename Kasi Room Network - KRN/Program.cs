@@ -11,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure EF Core with SQL Server connection
+// Configure EF Core with the SQLite database configured for the active environment.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("conn")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("conn")));
 
 // Add ASP.NET Core Identity with default options and role support
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
