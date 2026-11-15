@@ -51,7 +51,7 @@ namespace KasiRoomNetwork.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetRoles",
+                name: "AspNetRole",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
@@ -61,11 +61,11 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                    table.PrimaryKey("PK_AspNetRole", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
+                name: "AspNetUser",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
@@ -89,11 +89,11 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.PrimaryKey("PK_AspNetUser", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
+                name: "AspNetRoleClaim",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -104,17 +104,17 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
+                    table.PrimaryKey("PK_AspNetRoleClaim", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
+                        name: "FK_AspNetRoleClaim_AspNetRole_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
+                        principalTable: "AspNetRole",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AdminVerificationLogs",
+                name: "AdminVerificationLog",
                 columns: table => new
                 {
                     LogId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -128,17 +128,17 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdminVerificationLogs", x => x.LogId);
+                    table.PrimaryKey("PK_AdminVerificationLog", x => x.LogId);
                     table.ForeignKey(
-                        name: "FK_AdminVerificationLogs_AspNetUsers_AdminUserId",
+                        name: "FK_AdminVerificationLog_AspNetUser_AdminUserId",
                         column: x => x.AdminUserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
+                name: "AspNetUserClaim",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -149,17 +149,17 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.PrimaryKey("PK_AspNetUserClaim", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        name: "FK_AspNetUserClaim_AspNetUser_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
+                name: "AspNetUserLogin",
                 columns: table => new
                 {
                     LoginProvider = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
@@ -169,17 +169,17 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.PrimaryKey("PK_AspNetUserLogin", x => new { x.LoginProvider, x.ProviderKey });
                     table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        name: "FK_AspNetUserLogin_AspNetUser_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
+                name: "AspNetUserRole",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "TEXT", nullable: false),
@@ -187,23 +187,23 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_AspNetUserRole", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        name: "FK_AspNetUserRole_AspNetRole_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
+                        principalTable: "AspNetRole",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        name: "FK_AspNetUserRole_AspNetUser_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
+                name: "AspNetUserToken",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "TEXT", nullable: false),
@@ -213,17 +213,17 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_AspNetUserToken", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        name: "FK_AspNetUserToken_AspNetUser_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "LandlordProfiles",
+                name: "LandlordProfile",
                 columns: table => new
                 {
                     LandlordProfileId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -238,24 +238,24 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LandlordProfiles", x => x.LandlordProfileId);
-                    table.CheckConstraint("CK_LandlordProfiles_WhatsAppNumber", "WhatsAppNumber IS NULL OR length(WhatsAppNumber) BETWEEN 10 AND 20");
+                    table.PrimaryKey("PK_LandlordProfile", x => x.LandlordProfileId);
+                    table.CheckConstraint("CK_LandlordProfile_WhatsAppNumber", "WhatsAppNumber IS NULL OR length(WhatsAppNumber) BETWEEN 10 AND 20");
                     table.ForeignKey(
-                        name: "FK_LandlordProfiles_AspNetUsers_UserId",
+                        name: "FK_LandlordProfile_AspNetUser_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_LandlordProfiles_AspNetUsers_VerifiedBy",
+                        name: "FK_LandlordProfile_AspNetUser_VerifiedBy",
                         column: x => x.VerifiedBy,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Properties",
+                name: "Property",
                 columns: table => new
                 {
                     PropertyId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -275,31 +275,31 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Properties", x => x.PropertyId);
-                    table.CheckConstraint("CK_Properties_IsActive", "IsActive IN (0, 1)");
-                    table.CheckConstraint("CK_Properties_IsVerified", "IsVerified IN (0, 1)");
+                    table.PrimaryKey("PK_Property", x => x.PropertyId);
+                    table.CheckConstraint("CK_Property_IsActive", "IsActive IN (0, 1)");
+                    table.CheckConstraint("CK_Property_IsVerified", "IsVerified IN (0, 1)");
                     table.ForeignKey(
-                        name: "FK_Properties_Address_AddressId",
+                        name: "FK_Property_Address_AddressId",
                         column: x => x.AddressId,
                         principalTable: "Address",
                         principalColumn: "AddressId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Properties_AspNetUsers_LandlordId",
+                        name: "FK_Property_AspNetUser_LandlordId",
                         column: x => x.LandlordId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Properties_AspNetUsers_VerifiedBy",
+                        name: "FK_Property_AspNetUser_VerifiedBy",
                         column: x => x.VerifiedBy,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserProfiles",
+                name: "UserProfile",
                 columns: table => new
                 {
                     UserProfileId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -313,17 +313,17 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserProfiles", x => x.UserProfileId);
+                    table.PrimaryKey("PK_UserProfile", x => x.UserProfileId);
                     table.ForeignKey(
-                        name: "FK_UserProfiles_AspNetUsers_UserId",
+                        name: "FK_UserProfile_AspNetUser_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Listings",
+                name: "Listing",
                 columns: table => new
                 {
                     ListingId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -346,28 +346,28 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Listings", x => x.ListingId);
-                    table.CheckConstraint("CK_Listings_AvailableUnits", "AvailableUnits >= 0");
-                    table.CheckConstraint("CK_Listings_IsActive", "IsActive IN (0, 1)");
-                    table.CheckConstraint("CK_Listings_IsAvailable", "IsAvailable IN (0, 1)");
-                    table.CheckConstraint("CK_Listings_IsVerified", "IsVerified IN (0, 1)");
-                    table.CheckConstraint("CK_Listings_Price", "Price >= 0");
+                    table.PrimaryKey("PK_Listing", x => x.ListingId);
+                    table.CheckConstraint("CK_Listing_AvailableUnits", "AvailableUnits >= 0");
+                    table.CheckConstraint("CK_Listing_IsActive", "IsActive IN (0, 1)");
+                    table.CheckConstraint("CK_Listing_IsAvailable", "IsAvailable IN (0, 1)");
+                    table.CheckConstraint("CK_Listing_IsVerified", "IsVerified IN (0, 1)");
+                    table.CheckConstraint("CK_Listing_Price", "Price >= 0");
                     table.ForeignKey(
-                        name: "FK_Listings_AspNetUsers_LandlordUserId",
+                        name: "FK_Listing_AspNetUser_LandlordUserId",
                         column: x => x.LandlordUserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Listings_AspNetUsers_VerifiedBy",
+                        name: "FK_Listing_AspNetUser_VerifiedBy",
                         column: x => x.VerifiedBy,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Listings_Properties_PropertyId",
+                        name: "FK_Listing_Property_PropertyId",
                         column: x => x.PropertyId,
-                        principalTable: "Properties",
+                        principalTable: "Property",
                         principalColumn: "PropertyId",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -391,9 +391,9 @@ namespace KasiRoomNetwork.Data.Migrations
                         principalColumn: "AmenityId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_PropertyAmenity_Properties_PropertyId",
+                        name: "FK_PropertyAmenity_Property_PropertyId",
                         column: x => x.PropertyId,
-                        principalTable: "Properties",
+                        principalTable: "Property",
                         principalColumn: "PropertyId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -416,9 +416,9 @@ namespace KasiRoomNetwork.Data.Migrations
                     table.CheckConstraint("CK_PropertyPhoto_IsActive", "IsActive IN (0, 1)");
                     table.CheckConstraint("CK_PropertyPhoto_IsPrimary", "IsPrimary IN (0, 1)");
                     table.ForeignKey(
-                        name: "FK_PropertyPhoto_Properties_PropertyId",
+                        name: "FK_PropertyPhoto_Property_PropertyId",
                         column: x => x.PropertyId,
-                        principalTable: "Properties",
+                        principalTable: "Property",
                         principalColumn: "PropertyId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -439,27 +439,27 @@ namespace KasiRoomNetwork.Data.Migrations
                 {
                     table.PrimaryKey("PK_Conversation", x => x.ConversationId);
                     table.ForeignKey(
-                        name: "FK_Conversation_AspNetUsers_LandlordId",
+                        name: "FK_Conversation_AspNetUser_LandlordId",
                         column: x => x.LandlordId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Conversation_AspNetUsers_TenantId",
+                        name: "FK_Conversation_AspNetUser_TenantId",
                         column: x => x.TenantId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Conversation_Listings_ListingId",
+                        name: "FK_Conversation_Listing_ListingId",
                         column: x => x.ListingId,
-                        principalTable: "Listings",
+                        principalTable: "Listing",
                         principalColumn: "ListingId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ListingPhotos",
+                name: "ListingPhoto",
                 columns: table => new
                 {
                     PhotoId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -472,13 +472,13 @@ namespace KasiRoomNetwork.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ListingPhotos", x => x.PhotoId);
-                    table.CheckConstraint("CK_ListingPhotos_IsActive", "IsActive IN (0, 1)");
-                    table.CheckConstraint("CK_ListingPhotos_IsPrimary", "IsPrimary IN (0, 1)");
+                    table.PrimaryKey("PK_ListingPhoto", x => x.PhotoId);
+                    table.CheckConstraint("CK_ListingPhoto_IsActive", "IsActive IN (0, 1)");
+                    table.CheckConstraint("CK_ListingPhoto_IsPrimary", "IsPrimary IN (0, 1)");
                     table.ForeignKey(
-                        name: "FK_ListingPhotos_Listings_ListingId",
+                        name: "FK_ListingPhoto_Listing_ListingId",
                         column: x => x.ListingId,
-                        principalTable: "Listings",
+                        principalTable: "Listing",
                         principalColumn: "ListingId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -499,9 +499,9 @@ namespace KasiRoomNetwork.Data.Migrations
                 {
                     table.PrimaryKey("PK_ListingContactLog", x => x.ContactLogId);
                     table.ForeignKey(
-                        name: "FK_ListingContactLog_AspNetUsers_UserId",
+                        name: "FK_ListingContactLog_AspNetUser_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -511,9 +511,9 @@ namespace KasiRoomNetwork.Data.Migrations
                         principalColumn: "ConversationId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ListingContactLog_Listings_ListingId",
+                        name: "FK_ListingContactLog_Listing_ListingId",
                         column: x => x.ListingId,
-                        principalTable: "Listings",
+                        principalTable: "Listing",
                         principalColumn: "ListingId",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -537,9 +537,9 @@ namespace KasiRoomNetwork.Data.Migrations
                     table.CheckConstraint("CK_Message_IsDeleted", "IsDeleted IN (0, 1)");
                     table.CheckConstraint("CK_Message_IsRead", "IsRead IN (0, 1)");
                     table.ForeignKey(
-                        name: "FK_Message_AspNetUsers_SenderId",
+                        name: "FK_Message_AspNetUser_SenderId",
                         column: x => x.SenderId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -556,46 +556,46 @@ namespace KasiRoomNetwork.Data.Migrations
                 columns: new[] { "Province", "City", "Suburb" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdminVerificationLogs_AdminUserId",
-                table: "AdminVerificationLogs",
+                name: "IX_AdminVerificationLog_AdminUserId",
+                table: "AdminVerificationLog",
                 column: "AdminUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoleClaims_RoleId",
-                table: "AspNetRoleClaims",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
-                table: "AspNetRoles",
+                table: "AspNetRole",
                 column: "NormalizedName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserClaims_UserId",
-                table: "AspNetUserClaims",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserLogins_UserId",
-                table: "AspNetUserLogins",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_RoleId",
-                table: "AspNetUserRoles",
+                name: "IX_AspNetRoleClaim_RoleId",
+                table: "AspNetRoleClaim",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
-                table: "AspNetUsers",
+                table: "AspNetUser",
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
-                table: "AspNetUsers",
+                table: "AspNetUser",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserClaim_UserId",
+                table: "AspNetUserClaim",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserLogin_UserId",
+                table: "AspNetUserLogin",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserRole_RoleId",
+                table: "AspNetUserRole",
+                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Conversation_LandlordId",
@@ -614,15 +614,40 @@ namespace KasiRoomNetwork.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_LandlordProfiles_VerifiedBy",
-                table: "LandlordProfiles",
+                name: "IX_LandlordProfile_VerifiedBy",
+                table: "LandlordProfile",
                 column: "VerifiedBy");
 
             migrationBuilder.CreateIndex(
                 name: "UQ_Landlord_User",
-                table: "LandlordProfiles",
+                table: "LandlordProfile",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Listing_LandlordUserId",
+                table: "Listing",
+                column: "LandlordUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Listing_Price",
+                table: "Listing",
+                column: "Price");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Listing_PropertyId",
+                table: "Listing",
+                column: "PropertyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Listing_Search",
+                table: "Listing",
+                columns: new[] { "IsAvailable", "IsVerified", "Price" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Listing_VerifiedBy",
+                table: "Listing",
+                column: "VerifiedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ListingContactLog_ConversationId",
@@ -640,34 +665,9 @@ namespace KasiRoomNetwork.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ListingPhotos_ListingId",
-                table: "ListingPhotos",
+                name: "IX_ListingPhoto_ListingId",
+                table: "ListingPhoto",
                 column: "ListingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Listings_LandlordUserId",
-                table: "Listings",
-                column: "LandlordUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Listings_Price",
-                table: "Listings",
-                column: "Price");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Listings_PropertyId",
-                table: "Listings",
-                column: "PropertyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Listings_Search",
-                table: "Listings",
-                columns: new[] { "IsAvailable", "IsVerified", "Price" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Listings_VerifiedBy",
-                table: "Listings",
-                column: "VerifiedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Message_ConversationId_CreatedAt",
@@ -680,18 +680,18 @@ namespace KasiRoomNetwork.Data.Migrations
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Properties_AddressId",
-                table: "Properties",
+                name: "IX_Property_AddressId",
+                table: "Property",
                 column: "AddressId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Properties_LandlordId",
-                table: "Properties",
+                name: "IX_Property_LandlordId",
+                table: "Property",
                 column: "LandlordId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Properties_VerifiedBy",
-                table: "Properties",
+                name: "IX_Property_VerifiedBy",
+                table: "Property",
                 column: "VerifiedBy");
 
             migrationBuilder.CreateIndex(
@@ -711,8 +711,8 @@ namespace KasiRoomNetwork.Data.Migrations
                 column: "PropertyId");
 
             migrationBuilder.CreateIndex(
-                name: "UQ_UserProfiles_User",
-                table: "UserProfiles",
+                name: "UQ_UserProfile_User",
+                table: "UserProfile",
                 column: "UserId",
                 unique: true);
         }
@@ -721,31 +721,31 @@ namespace KasiRoomNetwork.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AdminVerificationLogs");
+                name: "AdminVerificationLog");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoleClaims");
+                name: "AspNetRoleClaim");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserClaims");
+                name: "AspNetUserClaim");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserLogins");
+                name: "AspNetUserLogin");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserRoles");
+                name: "AspNetUserRole");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
+                name: "AspNetUserToken");
 
             migrationBuilder.DropTable(
-                name: "LandlordProfiles");
+                name: "LandlordProfile");
 
             migrationBuilder.DropTable(
                 name: "ListingContactLog");
 
             migrationBuilder.DropTable(
-                name: "ListingPhotos");
+                name: "ListingPhoto");
 
             migrationBuilder.DropTable(
                 name: "Message");
@@ -757,10 +757,10 @@ namespace KasiRoomNetwork.Data.Migrations
                 name: "PropertyPhoto");
 
             migrationBuilder.DropTable(
-                name: "UserProfiles");
+                name: "UserProfile");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "AspNetRole");
 
             migrationBuilder.DropTable(
                 name: "Conversation");
@@ -769,16 +769,16 @@ namespace KasiRoomNetwork.Data.Migrations
                 name: "Amenity");
 
             migrationBuilder.DropTable(
-                name: "Listings");
+                name: "Listing");
 
             migrationBuilder.DropTable(
-                name: "Properties");
+                name: "Property");
 
             migrationBuilder.DropTable(
                 name: "Address");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "AspNetUser");
         }
     }
 }

@@ -13,7 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure EF Core with the SQLite database configured for the active environment.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("conn")));
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("conn"),
+        sqlite => sqlite.MigrationsHistoryTable("__EFMigrationHistory")));
 
 // Add ASP.NET Core Identity with default options and role support
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
@@ -95,6 +97,8 @@ app.MapControllerRoute(
 
 using (var scope = app.Services.CreateScope())
 {
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await dbContext.Database.MigrateAsync();
     await DBseeder.SeedRolesAndAdminAsync(scope.ServiceProvider);
 }
 

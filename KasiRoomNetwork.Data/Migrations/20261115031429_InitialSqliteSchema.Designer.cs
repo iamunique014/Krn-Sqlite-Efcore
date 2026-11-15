@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KasiRoomNetwork.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261115023300_InitialSqliteSchema")]
+    [Migration("20261115031429_InitialSqliteSchema")]
     partial class InitialSqliteSchema
     {
         /// <inheritdoc />
@@ -103,7 +103,7 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("AdminUserId");
 
-                    b.ToTable("AdminVerificationLogs", (string)null);
+                    b.ToTable("AdminVerificationLog", (string)null);
                 });
 
             modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Amenity", b =>
@@ -225,7 +225,7 @@ namespace KasiRoomNetwork.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("AspNetUser", (string)null);
                 });
 
             modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.Conversation", b =>
@@ -311,9 +311,9 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("VerifiedBy");
 
-                    b.ToTable("LandlordProfiles", null, t =>
+                    b.ToTable("LandlordProfile", null, t =>
                         {
-                            t.HasCheckConstraint("CK_LandlordProfiles_WhatsAppNumber", "WhatsAppNumber IS NULL OR length(WhatsAppNumber) BETWEEN 10 AND 20");
+                            t.HasCheckConstraint("CK_LandlordProfile_WhatsAppNumber", "WhatsAppNumber IS NULL OR length(WhatsAppNumber) BETWEEN 10 AND 20");
                         });
                 });
 
@@ -397,19 +397,19 @@ namespace KasiRoomNetwork.Data.Migrations
                     b.HasIndex("VerifiedBy");
 
                     b.HasIndex("IsAvailable", "IsVerified", "Price")
-                        .HasDatabaseName("IX_Listings_Search");
+                        .HasDatabaseName("IX_Listing_Search");
 
-                    b.ToTable("Listings", null, t =>
+                    b.ToTable("Listing", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Listings_AvailableUnits", "AvailableUnits >= 0");
+                            t.HasCheckConstraint("CK_Listing_AvailableUnits", "AvailableUnits >= 0");
 
-                            t.HasCheckConstraint("CK_Listings_IsActive", "IsActive IN (0, 1)");
+                            t.HasCheckConstraint("CK_Listing_IsActive", "IsActive IN (0, 1)");
 
-                            t.HasCheckConstraint("CK_Listings_IsAvailable", "IsAvailable IN (0, 1)");
+                            t.HasCheckConstraint("CK_Listing_IsAvailable", "IsAvailable IN (0, 1)");
 
-                            t.HasCheckConstraint("CK_Listings_IsVerified", "IsVerified IN (0, 1)");
+                            t.HasCheckConstraint("CK_Listing_IsVerified", "IsVerified IN (0, 1)");
 
-                            t.HasCheckConstraint("CK_Listings_Price", "Price >= 0");
+                            t.HasCheckConstraint("CK_Listing_Price", "Price >= 0");
                         });
                 });
 
@@ -483,11 +483,11 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("ListingId");
 
-                    b.ToTable("ListingPhotos", null, t =>
+                    b.ToTable("ListingPhoto", null, t =>
                         {
-                            t.HasCheckConstraint("CK_ListingPhotos_IsActive", "IsActive IN (0, 1)");
+                            t.HasCheckConstraint("CK_ListingPhoto_IsActive", "IsActive IN (0, 1)");
 
-                            t.HasCheckConstraint("CK_ListingPhotos_IsPrimary", "IsPrimary IN (0, 1)");
+                            t.HasCheckConstraint("CK_ListingPhoto_IsPrimary", "IsPrimary IN (0, 1)");
                         });
                 });
 
@@ -601,11 +601,11 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("VerifiedBy");
 
-                    b.ToTable("Properties", null, t =>
+                    b.ToTable("Property", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Properties_IsActive", "IsActive IN (0, 1)");
+                            t.HasCheckConstraint("CK_Property_IsActive", "IsActive IN (0, 1)");
 
-                            t.HasCheckConstraint("CK_Properties_IsVerified", "IsVerified IN (0, 1)");
+                            t.HasCheckConstraint("CK_Property_IsVerified", "IsVerified IN (0, 1)");
                         });
                 });
 
@@ -710,9 +710,9 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("UserId")
                         .IsUnique()
-                        .HasDatabaseName("UQ_UserProfiles_User");
+                        .HasDatabaseName("UQ_UserProfile_User");
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfile", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -738,7 +738,7 @@ namespace KasiRoomNetwork.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("AspNetRole", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -761,7 +761,7 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("AspNetRoleClaim", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -784,7 +784,7 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("AspNetUserClaim", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -808,7 +808,7 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("AspNetUserLogin", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -823,7 +823,7 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("AspNetUserRole", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -844,7 +844,7 @@ namespace KasiRoomNetwork.Data.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("AspNetUserToken", (string)null);
                 });
 
             modelBuilder.Entity("KasiRoomNetwork.Data.Domain.Models.AdminVerificationLog", b =>
