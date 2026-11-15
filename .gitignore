@@ -57,5 +57,5 @@ TestResult.xml
 nunit-*.xml
 
 # Environment-specific application settings (contain local deployment configuration)
-/Kasi Room Network - KRN/appsettings.Development.json
-/Kasi Room Network - KRN/appsettings.Production.json
+*appsettings.Development.json
+*appsettings.Production.json
