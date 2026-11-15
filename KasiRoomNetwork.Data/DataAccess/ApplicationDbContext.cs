@@ -26,7 +26,7 @@ namespace KasiRoomNetwork.Data.DataAccess
 
             builder.Entity<ApplicationUser>()
                    .Property(u => u.CreatedAt)
-                   .HasDefaultValueSql("GETUTCDATE()");
+                   .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         }
     }
