@@ -1,4 +1,5 @@
 ﻿using KasiRoomNetwork.Data.Domain.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +31,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<ApplicationUser>().ToTable("AspNetUser");
+        builder.Entity<IdentityRole>().ToTable("AspNetRole");
+        builder.Entity<IdentityUserClaim<string>>().ToTable("AspNetUserClaim");
+        builder.Entity<IdentityUserLogin<string>>().ToTable("AspNetUserLogin");
+        builder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRole");
+        builder.Entity<IdentityUserToken<string>>().ToTable("AspNetUserToken");
+        builder.Entity<IdentityRoleClaim<string>>().ToTable("AspNetRoleClaim");
 
         builder.Entity<ApplicationUser>(entity =>
         {
@@ -114,7 +123,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<AdminVerificationLog>(entity =>
         {
-            entity.ToTable("AdminVerificationLogs");
+            entity.ToTable("AdminVerificationLog");
             entity.HasKey(log => log.LogId);
             entity.Property(log => log.EntityType).HasMaxLength(50);
             entity.Property(log => log.Action).HasMaxLength(50);
@@ -156,8 +165,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<LandlordProfile>(entity =>
         {
-            entity.ToTable("LandlordProfiles", table =>
-                table.HasCheckConstraint("CK_LandlordProfiles_WhatsAppNumber",
+            entity.ToTable("LandlordProfile", table =>
+                table.HasCheckConstraint("CK_LandlordProfile_WhatsAppNumber",
                     "WhatsAppNumber IS NULL OR length(WhatsAppNumber) BETWEEN 10 AND 20"));
             entity.HasKey(profile => profile.LandlordProfileId);
             entity.Property(profile => profile.UserId).IsRequired().HasMaxLength(450);
@@ -175,13 +184,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<Listing>(entity =>
         {
-            entity.ToTable("Listings", table =>
+            entity.ToTable("Listing", table =>
             {
-                table.HasCheckConstraint("CK_Listings_Price", "Price >= 0");
-                table.HasCheckConstraint("CK_Listings_AvailableUnits", "AvailableUnits >= 0");
-                table.HasCheckConstraint("CK_Listings_IsAvailable", "IsAvailable IN (0, 1)");
-                table.HasCheckConstraint("CK_Listings_IsVerified", "IsVerified IN (0, 1)");
-                table.HasCheckConstraint("CK_Listings_IsActive", "IsActive IN (0, 1)");
+                table.HasCheckConstraint("CK_Listing_Price", "Price >= 0");
+                table.HasCheckConstraint("CK_Listing_AvailableUnits", "AvailableUnits >= 0");
+                table.HasCheckConstraint("CK_Listing_IsAvailable", "IsAvailable IN (0, 1)");
+                table.HasCheckConstraint("CK_Listing_IsVerified", "IsVerified IN (0, 1)");
+                table.HasCheckConstraint("CK_Listing_IsActive", "IsActive IN (0, 1)");
             });
             entity.HasKey(listing => listing.ListingId);
             entity.Property(listing => listing.LandlordUserId).HasMaxLength(450);
@@ -199,7 +208,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasIndex(listing => listing.LandlordUserId);
             entity.HasIndex(listing => listing.Price);
             entity.HasIndex(listing => new { listing.IsAvailable, listing.IsVerified, listing.Price })
-                .HasDatabaseName("IX_Listings_Search");
+                .HasDatabaseName("IX_Listing_Search");
             entity.HasOne(listing => listing.Property)
                 .WithMany(property => property.Listings)
                 .HasForeignKey(listing => listing.PropertyId)
@@ -225,10 +234,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<ListingPhoto>(entity =>
         {
-            entity.ToTable("ListingPhotos", table =>
+            entity.ToTable("ListingPhoto", table =>
             {
-                table.HasCheckConstraint("CK_ListingPhotos_IsPrimary", "IsPrimary IN (0, 1)");
-                table.HasCheckConstraint("CK_ListingPhotos_IsActive", "IsActive IN (0, 1)");
+                table.HasCheckConstraint("CK_ListingPhoto_IsPrimary", "IsPrimary IN (0, 1)");
+                table.HasCheckConstraint("CK_ListingPhoto_IsActive", "IsActive IN (0, 1)");
             });
             entity.HasKey(photo => photo.PhotoId);
             entity.Property(photo => photo.PhotoPath).IsRequired().HasMaxLength(255);
@@ -265,10 +274,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<Property>(entity =>
         {
-            entity.ToTable("Properties", table =>
+            entity.ToTable("Property", table =>
             {
-                table.HasCheckConstraint("CK_Properties_IsVerified", "IsVerified IN (0, 1)");
-                table.HasCheckConstraint("CK_Properties_IsActive", "IsActive IN (0, 1)");
+                table.HasCheckConstraint("CK_Property_IsVerified", "IsVerified IN (0, 1)");
+                table.HasCheckConstraint("CK_Property_IsActive", "IsActive IN (0, 1)");
             });
             entity.HasKey(property => property.PropertyId);
             entity.Property(property => property.LandlordId).HasMaxLength(450);
@@ -325,7 +334,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<UserProfile>(entity =>
         {
-            entity.ToTable("UserProfiles");
+            entity.ToTable("UserProfile");
             entity.HasKey(profile => profile.UserProfileId);
             entity.Property(profile => profile.UserId).IsRequired().HasMaxLength(450);
             entity.Property(profile => profile.FullName).IsRequired().HasMaxLength(100);
@@ -333,7 +342,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(profile => profile.City).HasMaxLength(100);
             entity.Property(profile => profile.Province).HasMaxLength(100);
             entity.Property(profile => profile.CreatedAt).HasDefaultValueSql(UtcNowSql);
-            entity.HasIndex(profile => profile.UserId).IsUnique().HasDatabaseName("UQ_UserProfiles_User");
+            entity.HasIndex(profile => profile.UserId).IsUnique().HasDatabaseName("UQ_UserProfile_User");
         });
     }
 }
