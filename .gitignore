@@ -76,4 +76,6 @@ appsettings.*.json
 *.sqlite
 *.sqlite3
 
+#geany project
+*.geany
 
