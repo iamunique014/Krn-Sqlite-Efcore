@@ -2,118 +2,92 @@
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
-using System;
-using System.Data;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace KasiRoomNetwork.Data.Repositories
 {
     public class AmenityRepository : IAmenityRepository
     {
-        private readonly ISqlDataAccess _db;
+        private readonly ApplicationDbContext _db;
 
-        public AmenityRepository(ISqlDataAccess db)
+        public AmenityRepository(ApplicationDbContext db)
         {
             _db = db;
         }
 
-        public async Task<IEnumerable<AmenityModel>> GetAllAmenities()
-        {
-            return await _db.GetData<AmenityModel, dynamic>(
-                "sp_Amenity_Get_All",
-                new { });
-        }
+        public async Task<IEnumerable<AmenityModel>> GetAllAmenities() =>
+            await _db.Amenities.AsNoTracking().Where(a => a.IsActive)
+                .OrderBy(a => a.Category).ThenBy(a => a.Name)
+                .Select(a => new AmenityModel
+                {
+                    AmenityId = a.AmenityId,
+                    Name = a.Name,
+                    Category = a.Category!,
+                    Icon = a.Icon
+                }).ToListAsync();
 
         public async Task AddPropertyAmenity(int propertyId, int amenityId, string landlordUserId)
         {
-            await _db.SaveData(
-                "sp_PropertyAmenity_Add",
-                new
-                {
-                    PropertyId = propertyId,
-                    AmenityId = amenityId,
-                    LandlordUserId = landlordUserId
-                });
-        }
-        public async Task AddPropertyAmenity(int propertyId, int amenityId, string landlordUserId, IDbTransaction transaction)
-        {
-            await _db.SaveData(
-                "sp_PropertyAmenity_Add",
-                new
-                {
-                    PropertyId = propertyId,
-                    AmenityId = amenityId,
-                    LandlordUserId = landlordUserId
-                }, transaction);
+            if (!await OwnsProperty(propertyId, landlordUserId))
+                return;
+            if (!await _db.PropertyAmenities.AnyAsync(pa => pa.PropertyId == propertyId && pa.AmenityId == amenityId))
+                _db.PropertyAmenities.Add(new Domain.Models.PropertyAmenity { PropertyId = propertyId, AmenityId = amenityId });
+            await _db.SaveChangesAsync();
         }
 
         public async Task RemovePropertyAmenity(int propertyId, int amenityId)
         {
-            await _db.SaveData(
-                "sp_PropertyAmenity_Remove",
-                new
-                {
-                    PropertyId = propertyId,
-                    AmenityId = amenityId
-                });
+            var links = await _db.PropertyAmenities.Where(pa => pa.PropertyId == propertyId && pa.AmenityId == amenityId).ToListAsync();
+            _db.PropertyAmenities.RemoveRange(links);
+            await _db.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<AmenityModel>> GetAmenitiesByPropertyId(int propertyId)
+        public async Task<IEnumerable<AmenityModel>> GetAmenitiesByPropertyId(int propertyId) =>
+            await _db.PropertyAmenities.AsNoTracking().Where(pa => pa.PropertyId == propertyId && pa.Amenity.IsActive)
+                .OrderBy(pa => pa.Amenity.Category).ThenBy(pa => pa.Amenity.Name)
+                .Select(pa => new AmenityModel
+                {
+                    AmenityId = pa.Amenity.AmenityId,
+                    Name = pa.Amenity.Name,
+                    Category = pa.Amenity.Category!,
+                    Icon = pa.Amenity.Icon
+                }).ToListAsync();
+
+        public async Task<EditPropertyAmenitiesViewModel?> GetPropertyAmenitiesForEditAsync(int propertyId, string landlordId)
         {
-            return await _db.GetData<AmenityModel, dynamic>(
-                "sp_PropertyAmenity_Get_By_PropertyId",
-                new
+            if (!await OwnsProperty(propertyId, landlordId))
+                return null;
+            var selectedIds = await _db.PropertyAmenities.Where(pa => pa.PropertyId == propertyId)
+                .Select(pa => pa.AmenityId).ToListAsync();
+            var amenities = await _db.Amenities.AsNoTracking().Where(a => a.IsActive)
+                .OrderBy(a => a.Category).ThenBy(a => a.Name)
+                .Select(a => new AmenitySelectionViewModel
                 {
-                    PropertyId = propertyId
-                });
+                    AmenityId = a.AmenityId,
+                    Name = a.Name,
+                    Category = a.Category!,
+                    Icon = a.Icon,
+                    IsSelected = selectedIds.Contains(a.AmenityId)
+                }).ToListAsync();
+            return new EditPropertyAmenitiesViewModel { PropertyId = propertyId, Amenities = amenities };
         }
 
-        public async Task<EditPropertyAmenitiesViewModel?>GetPropertyAmenitiesForEditAsync(
-            int propertyId,
-            string landlordId)
+        public async Task UpdatePropertyAmenitiesAsync(int propertyId, List<int> amenityIds, string landlordId)
         {
-            var amenities = await _db.GetData<AmenitySelectionViewModel, dynamic>(
-                "sp_PropertyAmenities_Get_For_Edit",
-                new
-                {
-                    PropertyId = propertyId,
-                    LandlordId = landlordId
-                });
-
-            return new EditPropertyAmenitiesViewModel
-            {
-                PropertyId = propertyId,
-                Amenities = amenities.ToList()
-            };
+            if (!await OwnsProperty(propertyId, landlordId))
+                return;
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+            var links = await _db.PropertyAmenities.Where(pa => pa.PropertyId == propertyId).ToListAsync();
+            _db.PropertyAmenities.RemoveRange(links);
+            var validIds = await _db.Amenities.Where(a => a.IsActive && amenityIds.Contains(a.AmenityId))
+                .Select(a => a.AmenityId).Distinct().ToListAsync();
+            foreach (var amenityId in validIds)
+                _db.PropertyAmenities.Add(new Domain.Models.PropertyAmenity { PropertyId = propertyId, AmenityId = amenityId });
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
         }
 
-        public async Task UpdatePropertyAmenitiesAsync(
-            int propertyId,
-            List<int> amenityIds,
-            string landlordId)
-        {
-            await _db.SaveData(
-                "sp_PropertyAmenities_Clear",
-                new
-                {
-                    PropertyId = propertyId,
-                    LandlordId = landlordId
-                });
-
-            foreach (var amenityId in amenityIds)
-            {
-                await _db.SaveData(
-                    "sp_PropertyAmenity_Add",
-                    new
-                    {
-                        PropertyId = propertyId,
-                        AmenityId = amenityId,
-                        LandlordUserId = landlordId
-                    });
-            }
-        }
+        private Task<bool> OwnsProperty(int propertyId, string landlordId) =>
+            _db.Properties.AnyAsync(p => p.PropertyId == propertyId && p.LandlordId == landlordId);
     }
 }

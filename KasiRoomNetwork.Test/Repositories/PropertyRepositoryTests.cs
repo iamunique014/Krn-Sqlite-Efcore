@@ -1,43 +1,62 @@
-﻿using KasiRoomNetwork.Data.DataAccess;
+using KasiRoomNetwork.Data.DataAccess;
+using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Repositories;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace KasiRoomNetwork.Test.Repositories
+namespace KasiRoomNetwork.Test.Repositories;
+
+public class PropertyRepositoryTests
 {
-    public class PropertyRepositoryTests
+    [Fact]
+    public async Task DeletePropertyAsync_SoftDeletesPropertyOwnedByLandlord()
     {
-        [Fact]
-        public async Task DeletePropertyAsync_Should_Call_sp_Property_Delete()
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlite(connection)
+            .Options;
+        await using var db = new ApplicationDbContext(options);
+        await db.Database.EnsureCreatedAsync();
+        var user = new ApplicationUser { Id = "landlord-123", UserName = "landlord", NormalizedUserName = "LANDLORD" };
+        db.Users.Add(user);
+        var address = new Address { Province = "North West", IsActive = true };
+        var property = new Property { LandlordId = user.Id, PropertyName = "Test property", PropertyType = "Apartment", IsActive = true, Address = address };
+        db.Properties.Add(property);
+        await db.SaveChangesAsync();
+
+        var repository = new PropertyRepository(db);
+        await repository.DeletePropertyAsync(property.PropertyId, user.Id);
+
+        var deleted = await db.Properties.AsNoTracking().SingleAsync(p => p.PropertyId == property.PropertyId);
+        Assert.False(deleted.IsActive);
+        Assert.NotNull(deleted.DeletedAt);
+    }
+
+    [Fact]
+    public async Task DeletePropertyAsync_DoesNotDeletePropertyOwnedByAnotherLandlord()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlite(connection).Options;
+        await using var db = new ApplicationDbContext(options);
+        await db.Database.EnsureCreatedAsync();
+        db.Users.AddRange(
+            new ApplicationUser { Id = "owner", UserName = "owner", NormalizedUserName = "OWNER" },
+            new ApplicationUser { Id = "other", UserName = "other", NormalizedUserName = "OTHER" });
+        var property = new Property
         {
-            // Arrange
+            LandlordId = "owner", PropertyName = "Test property", PropertyType = "Apartment", IsActive = true,
+            Address = new Address { Province = "North West", IsActive = true }
+        };
+        db.Properties.Add(property);
+        await db.SaveChangesAsync();
 
-            var dbMock = new Mock<ISqlDataAccess>();
+        await new PropertyRepository(db).DeletePropertyAsync(property.PropertyId, "other");
 
-            var repository = new PropertyRepository(dbMock.Object);
-
-            int propertyId = 10;
-            string landlordId = "landlord-123";
-
-            // Act
-
-            await repository.DeletePropertyAsync(propertyId, landlordId);
-
-            // Assert
-
-            dbMock.Verify(
-                x => x.SaveData(
-                     "sp_Property_Delete",
-                     It.Is<object>(p =>
-                         p.ToString()!.Contains("PropertyId") &&
-                         p.ToString()!.Contains("LandlordId")),
-                     "conn"),
-                Times.Once);
-        }
+        var unchanged = await db.Properties.AsNoTracking().SingleAsync(p => p.PropertyId == property.PropertyId);
+        Assert.True(unchanged.IsActive);
+        Assert.Null(unchanged.DeletedAt);
     }
 }

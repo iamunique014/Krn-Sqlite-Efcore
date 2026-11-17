@@ -1,5 +1,4 @@
 using Kasi_Room_Network___KRN.Areas.Identity.Data;
-using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Data.Repositories;
@@ -42,7 +41,6 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddTransient<ISqlDataAccess, SqlDataAccess>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<ILandlordRepository, LandlordRepository>();
