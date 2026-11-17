@@ -2,9 +2,8 @@ using KasiRoomNetwork.Common.DTOs;
 using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Common.ViewModel.Properties;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Data.SqlClient;
-using System.Data;
+using KasiRoomNetwork.Data.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kasi_Room_Network___KRN.Services
 {
@@ -13,34 +12,31 @@ namespace Kasi_Room_Network___KRN.Services
         private readonly IPropertyRepository _propertyRepository;
         private readonly IAmenityRepository _amenityRepository;
         private readonly IPhotoStorageService _photoStorageService;
-        private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _dbContext;
 
         public CreatePropertyService(
             IPropertyRepository propertyRepository,
             IAmenityRepository amenityRepository,
             IPhotoStorageService photoStorageService,
-            IConfiguration configuration)
+            ApplicationDbContext dbContext)
         {
             _propertyRepository = propertyRepository;
             _amenityRepository = amenityRepository;
             _photoStorageService = photoStorageService;
-            _configuration = configuration;
+            _dbContext = dbContext;
         }
 
         public async Task<int> CreatePropertyAsync(CreatePropertyWizardDto dto)
         {
             int propertyId = 0;
-            IDbTransaction transaction = null;
-            IDbConnection connection = null;
+            Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? transaction = null;
 
             var PermanentPropertyPhotoPaths = new List<string>();
 
             try
             {
                 // Establish a single connection for the transaction
-                connection = new SqlConnection(_configuration.GetConnectionString("conn"));
-                connection.Open();
-                transaction = connection.BeginTransaction();
+                transaction = await _dbContext.Database.BeginTransactionAsync();
 
                 // 1. Create Property
                 var createPropertyViewModel = new CreatePropertyViewModel
@@ -53,12 +49,12 @@ namespace Kasi_Room_Network___KRN.Services
                     City = dto.City,
                     Suburb = dto.Suburb
                 };
-                propertyId = await _propertyRepository.CreateProperty(createPropertyViewModel, dto.LandlordUserId, transaction);
+                propertyId = await _propertyRepository.CreateProperty(createPropertyViewModel, dto.LandlordUserId);
 
                 // 2. Add Amenities
                 foreach (var amenityId in dto.AmenityIds)
                 {
-                    await _amenityRepository.AddPropertyAmenity(propertyId, amenityId, dto.LandlordUserId, transaction);
+                    await _amenityRepository.AddPropertyAmenity(propertyId, amenityId, dto.LandlordUserId);
                 }
 
                 // 3. Handle Photos (Move from temp to permanent storage and add metadata) 
@@ -68,11 +64,11 @@ namespace Kasi_Room_Network___KRN.Services
                     string permanentPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(tempPhotoPath, "properties");
                     PermanentPropertyPhotoPaths.Add(permanentPath);
                     bool isPrimary = true; //Every photo is set primary, this is changed in db by Sp.
-                    await _propertyRepository.AddPropertyPhoto(propertyId, permanentPath, isPrimary, dto.LandlordUserId, transaction);
+                    await _propertyRepository.AddPropertyPhoto(propertyId, permanentPath, isPrimary, dto.LandlordUserId);
                 }
 
                 // Commit the transaction if all database operations are successful
-                transaction.Commit();
+                await transaction.CommitAsync();
 
                 // Clean up temporary wizard photos after successful commit
                 _photoStorageService.DeleteTemporaryWizardFolder(dto.LandlordUserId);
@@ -80,7 +76,7 @@ namespace Kasi_Room_Network___KRN.Services
             catch (Exception ex)
             {
                 // Rollback transaction on any database-related error
-                transaction?.Rollback();
+                if (transaction != null) await transaction.RollbackAsync();
 
                 // Compensation: Delete any permanent blobs that were uploaded if the transaction failed
                 foreach (var path in PermanentPropertyPhotoPaths)
@@ -93,8 +89,7 @@ namespace Kasi_Room_Network___KRN.Services
             }
             finally
             {
-                // Ensure the connection is closed
-                connection?.Dispose();
+                if (transaction != null) await transaction.DisposeAsync();
             }
 
             return propertyId;

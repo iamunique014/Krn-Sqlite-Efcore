@@ -1,189 +1,145 @@
+using KasiRoomNetwork.Common.Models;
+using KasiRoomNetwork.Common.Models.Enums;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
+using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
-using KasiRoomNetwork.Common.Models.Enums;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace KasiRoomNetwork.Data.Repositories
 {
     public class PropertyRepository : IPropertyRepository
     {
-        private readonly ISqlDataAccess _db;
+        private readonly ApplicationDbContext _context;
 
-        public PropertyRepository(ISqlDataAccess db)
-        {
-            _db = db;
-        }
+        public PropertyRepository(ApplicationDbContext context) => _context = context;
 
-        // sp_Landlord_Create_Property
         public async Task<int> CreateProperty(CreatePropertyViewModel model, string landlordUserId)
         {
-            var result = await _db.GetData<int, dynamic>("sp_Landlord_Create_Property", new
+            var address = new Address
             {
-                LandlordUserId = landlordUserId,
-                PropertyType = model.PropertyType?.ToString() ?? string.Empty,
-                model.TotalRooms,
-                model.PropertyName,
-                model.Street,
-                model.Province,
-                model.City,
-                model.Suburb
-            });
-
-            return result.First();
-        }
-
-        //Transaction based property creation       
-        public async Task<int> CreateProperty(CreatePropertyViewModel model, string landlordUserId, IDbTransaction transaction)
-        {
-            var result = await _db.GetData<int, dynamic>("sp_Landlord_Create_Property", new
+                Street = model.Street, Province = model.Province, City = model.City, Suburb = model.Suburb,
+                IsActive = true
+            };
+            var property = new Property
             {
-                LandlordUserId = landlordUserId,
-                PropertyType = model.PropertyType?.ToString() ?? string.Empty,
-                model.TotalRooms,
-                model.PropertyName,
-                model.Street,
-                model.Province,
-                model.City,
-                model.Suburb
-            }, transaction);
-
-            return result.First();
+                LandlordId = landlordUserId, PropertyType = model.PropertyType?.ToString() ?? string.Empty,
+                TotalRooms = model.TotalRooms, PropertyName = model.PropertyName, IsActive = true, Address = address
+            };
+            _context.Properties.Add(property);
+            await _context.SaveChangesAsync();
+            return property.PropertyId;
         }
 
         public async Task<EditPropertyViewModel?> GetPropertyForEditAsync(int propertyId, string landlordId)
         {
-            var results = await _db.GetData<EditPropertyViewModel, dynamic>(
-                "sp_Property_Get_For_Edit",
-                new
-                {
-                    PropertyId = propertyId,
-                    LandlordId = landlordId
-                });
-
-            return results.FirstOrDefault();
+            var property = await _context.Properties.AsNoTracking().Include(p => p.Address)
+                .FirstOrDefaultAsync(p => p.PropertyId == propertyId && p.LandlordId == landlordId && p.IsActive);
+            if (property == null) return null;
+            return new EditPropertyViewModel
+            {
+                PropertyId = property.PropertyId, PropertyName = property.PropertyName ?? string.Empty,
+                PropertyType = Enum.TryParse<PropertyType>(property.PropertyType, out var type) ? type : null,
+                TotalRooms = property.TotalRooms, Province = property.Address.Province,
+                City = property.Address.City ?? string.Empty, Suburb = property.Address.Suburb, Street = property.Address.Street
+            };
         }
 
         public async Task UpdatePropertyAsync(EditPropertyViewModel model, string landlordId)
         {
-            await _db.SaveData(
-                "sp_Property_Update",
-                new
-                {
-                    model.PropertyId,
-                    LandlordId = landlordId,
-
-                    model.PropertyName,
-                    PropertyType = model.PropertyType?.ToString() ?? string.Empty,
-                    model.TotalRooms,
-
-                    model.Province,
-                    model.City,
-                    model.Suburb,
-                    model.Street
-                });
+            var property = await _context.Properties.Include(p => p.Address)
+                .FirstOrDefaultAsync(p => p.PropertyId == model.PropertyId && p.LandlordId == landlordId && p.IsActive);
+            if (property == null) return;
+            property.PropertyName = model.PropertyName;
+            property.PropertyType = model.PropertyType?.ToString() ?? string.Empty;
+            property.TotalRooms = model.TotalRooms;
+            property.Address.Province = model.Province; property.Address.City = model.City;
+            property.Address.Suburb = model.Suburb; property.Address.Street = model.Street;
+            property.Address.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
         }
 
-        // sp_Property_Delete
         public async Task DeletePropertyAsync(int propertyId, string landlordId)
         {
-            await _db.SaveData(
-                "sp_Property_Delete",
-                new
-                {
-                    PropertyId = propertyId,
-                    LandlordUserId  = landlordId
-                });
+            var property = await _context.Properties.FirstOrDefaultAsync(p => p.PropertyId == propertyId && p.LandlordId == landlordId && p.IsActive);
+            if (property == null) return;
+            property.IsActive = false; property.DeletedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
         }
 
-        // sp_Landlord_Get_Properties_By_User
-        public async Task<List<LandlordPropertyViewModel>> GetPropertiesByUser(string landlordUserId)
-        {
-            var result = await _db.GetData<LandlordPropertyViewModel, dynamic>("sp_Landlord_Get_Properties_By_User", new
+        public async Task<List<LandlordPropertyViewModel>> GetPropertiesByUser(string landlordUserId) => await _context.Properties.AsNoTracking()
+            .Where(p => p.LandlordId == landlordUserId && p.IsActive)
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new LandlordPropertyViewModel
             {
-                LandlordUserId = landlordUserId
-            });
+                PropertyId = p.PropertyId, PropertyName = p.PropertyName ?? string.Empty,
+                PropertyType = p.PropertyType ?? string.Empty, TotalRooms = p.TotalRooms ?? 0,
+                CreatedAt = p.CreatedAt, Street = p.Address.Street ?? string.Empty, Suburb = p.Address.Suburb ?? string.Empty,
+                City = p.Address.City ?? string.Empty, Province = p.Address.Province
+            }).ToListAsync();
 
-            return result.ToList();
-        }
-
-        // sp_Add_Property_Photo
         public async Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId)
         {
-            var result = await _db.GetData<int, dynamic>("sp_Property_Add_Photo", new
+            var property = await _context.Properties.FirstOrDefaultAsync(p => p.PropertyId == propertyId && p.LandlordId == landlordUserId && p.IsActive);
+            if (property == null) return false;
+            if (isPrimary)
             {
-                propertyId,
-                PhotoPath = dbPath,
-                IsPrimary = isPrimary,
-                LandlordUserId = landlordUserId
-            });
-            return result.FirstOrDefault() == 1;
+                var primaryPhotos = await _context.PropertyPhotos.Where(p => p.PropertyId == propertyId && p.IsActive && p.IsPrimary).ToListAsync();
+                primaryPhotos.ForEach(p => p.IsPrimary = false);
+            }
+            _context.PropertyPhotos.Add(new PropertyPhoto { PropertyId = propertyId, PhotoPath = dbPath, IsPrimary = isPrimary, IsActive = true });
+            await _context.SaveChangesAsync(); return true;
         }
 
-         // Transactioon based
-        public async Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId, IDbTransaction transaction)
-        {
-            var result = await _db.GetData<int, dynamic>("sp_Property_Add_Photo", new
-            {
-                propertyId,
-                PhotoPath = dbPath,
-                IsPrimary = isPrimary,
-                LandlordUserId = landlordUserId
-            }, transaction);
-            return result.FirstOrDefault() == 1;
-        }
-
-        // sp_Get_Property_By_Id
         public async Task<PropertyDetailsViewModel?> GetPropertyById(int propertyId)
         {
-            var result = await _db.GetData<PropertyDetailsViewModel, dynamic>(
-                "sp_Property_Get_By_Id",
-                new { propertyId });
-
-            return result.FirstOrDefault();
-        }
-
-        public async Task<int> GetPropertyPhotoCount(int propertyId)
-        {
-            var result = await _db.GetData<int, dynamic>("sp_Property_Get_Photo_Count", new
+            var property = await _context.Properties.AsNoTracking().Include(p => p.Address)
+                .Include(p => p.Landlord).ThenInclude(u => u!.UserProfile)
+                .Include(p => p.Landlord).ThenInclude(u => u!.LandlordProfile)
+                .Include(p => p.Photos)
+                .Include(p => p.PropertyAmenities).ThenInclude(a => a.Amenity)
+                .FirstOrDefaultAsync(p => p.PropertyId == propertyId && p.IsActive);
+            if (property == null) return null;
+            var landlord = property.Landlord;
+            return new PropertyDetailsViewModel
             {
-                propertyId
-            });
-
-            return result.FirstOrDefault();
+                PropertyId = property.PropertyId, PropertyName = property.PropertyName ?? string.Empty,
+                TotalRooms = property.TotalRooms ?? 0, IsVerified = property.IsVerified,
+                VerificationNotes = property.VerificationNotes ?? string.Empty, VerifiedOn = property.VerifiedOn ?? default,
+                CreatedAt = property.CreatedAt, Province = property.Address.Province, City = property.Address.City ?? string.Empty,
+                Suburb = property.Address.Suburb ?? string.Empty, Street = property.Address.Street,
+                FullName = landlord?.UserProfile?.FullName ?? string.Join(" ", new[] { landlord?.FirstName, landlord?.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))),
+                PhoneNumber = landlord?.PhoneNumber ?? string.Empty, LandlordUserId = property.LandlordId ?? string.Empty,
+                Photos = property.Photos.Where(p => p.IsActive).OrderByDescending(p => p.IsPrimary).ThenBy(p => p.PhotoId)
+                    .Select(p => new PropertyPhotoViewModel { PhotoId = p.PhotoId, PhotoPath = p.PhotoPath, IsPrimary = p.IsPrimary }).ToList(),
+                Amenities = property.PropertyAmenities.Where(a => a.Amenity.IsActive).Select(a => new AmenityModel
+                { AmenityId = a.Amenity.AmenityId, Name = a.Amenity.Name, Category = a.Amenity.Category ?? string.Empty, Icon = a.Amenity.Icon }).ToList()
+            };
         }
 
-        // sp_Get_Property_Photos
-        public async Task<List<PropertyPhotoViewModel>> GetPropertyPhotos(int propertyId)
-        {
-            var result = await _db.GetData<PropertyPhotoViewModel, dynamic>(
-                "sp_Property_Get_Photos",
-                new { propertyId });
+        public Task<int> GetPropertyPhotoCount(int propertyId) => _context.PropertyPhotos.CountAsync(p => p.PropertyId == propertyId && p.IsActive);
 
-            return result
-                .OrderByDescending(photo => photo.IsPrimary)
-                .ThenBy(photo => photo.PhotoId)
-                .ToList();
-        }
+        public async Task<List<PropertyPhotoViewModel>> GetPropertyPhotos(int propertyId) => await _context.PropertyPhotos.AsNoTracking()
+            .Where(p => p.PropertyId == propertyId && p.IsActive).OrderByDescending(p => p.IsPrimary).ThenBy(p => p.PhotoId)
+            .Select(p => new PropertyPhotoViewModel { PhotoId = p.PhotoId, PhotoPath = p.PhotoPath, IsPrimary = p.IsPrimary }).ToListAsync();
 
         public async Task DeletePropertyPhoto(int photoId, int propertyId, string landlordUserId)
         {
-            await _db.SaveData("sp_PropertyPhoto_Delete", new
-            {
-                PhotoId = photoId,
-                PropertyId = propertyId,
-                LandlordUserId = landlordUserId
-            });
+            var photo = await _context.PropertyPhotos.Include(p => p.Property)
+                .FirstOrDefaultAsync(p => p.PhotoId == photoId && p.PropertyId == propertyId && p.IsActive && p.Property.LandlordId == landlordUserId);
+            if (photo == null) return;
+            photo.IsActive = false; photo.IsPrimary = false;
+            await _context.SaveChangesAsync();
         }
 
         public async Task SetPrimaryPropertyPhoto(int propertyId, int photoId, string landlordUserId)
         {
-            await _db.SaveData("sp_PropertyPhoto_Set_Primary", new
-            {
-                PropertyId = propertyId,
-                PhotoId = photoId,
-                LandlordUserId = landlordUserId
-            });
+            var target = await _context.PropertyPhotos.Include(p => p.Property)
+                .FirstOrDefaultAsync(p => p.PhotoId == photoId && p.PropertyId == propertyId && p.IsActive && p.Property.LandlordId == landlordUserId);
+            if (target == null) return;
+            var photos = await _context.PropertyPhotos.Where(p => p.PropertyId == propertyId && p.IsActive).ToListAsync();
+            photos.ForEach(p => p.IsPrimary = p.PhotoId == photoId);
+            await _context.SaveChangesAsync();
         }
     }
 }

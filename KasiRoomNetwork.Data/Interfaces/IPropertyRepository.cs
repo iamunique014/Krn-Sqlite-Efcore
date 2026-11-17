@@ -1,14 +1,10 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Properties;
-using System.Data;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 
 namespace KasiRoomNetwork.Data.Interfaces
 {
     public interface IPropertyRepository
     {
         Task<int> CreateProperty(CreatePropertyViewModel model, string landlordUserId);
-        //Transaction baseed property creation
-        Task<int> CreateProperty(CreatePropertyViewModel model, string landlordUserId, IDbTransaction transaction);
-        
         Task DeletePropertyAsync(int propertyId, string landlordId);
         
         Task<EditPropertyViewModel?> GetPropertyForEditAsync(int propertyId, string landlordId);
@@ -18,9 +14,6 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task<List<LandlordPropertyViewModel>> GetPropertiesByUser(string landlordUserId);
         // sp_Add_Property_Photo
         Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId);
-        //Transaction baseed 
-        Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId, IDbTransaction transaction);
-
         // sp_Get_Property_By_Id
         Task<PropertyDetailsViewModel?> GetPropertyById(int propertyId);
 
