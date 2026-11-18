@@ -103,15 +103,31 @@ namespace KasiRoomNetwork.Data.Repositories
             var landlord = property.Landlord;
             return new PropertyDetailsViewModel
             {
-                PropertyId = property.PropertyId, PropertyName = property.PropertyName ?? string.Empty,
-                TotalRooms = property.TotalRooms ?? 0, IsVerified = property.IsVerified,
-                VerificationNotes = property.VerificationNotes ?? string.Empty, VerifiedOn = property.VerifiedOn ?? default,
-                CreatedAt = property.CreatedAt, Province = property.Address.Province, City = property.Address.City ?? string.Empty,
-                Suburb = property.Address.Suburb ?? string.Empty, Street = property.Address.Street,
+                PropertyId = property.PropertyId, 
+                PropertyName = property.PropertyName ?? string.Empty,
+                PropertyType = property.PropertyType ?? string.Empty,
+                TotalRooms = property.TotalRooms ?? 0, 
+                IsVerified = property.IsVerified,
+                VerificationNotes = property.VerificationNotes ?? string.Empty, 
+                VerifiedOn = property.VerifiedOn ?? default,
+                CreatedAt = property.CreatedAt, 
+                
+                //Address
+                Province = property.Address.Province, 
+                City = property.Address.City ?? string.Empty,
+                Suburb = property.Address.Suburb ?? string.Empty, 
+                Street = property.Address.Street,
+                
+                //Landlord
                 FullName = landlord?.UserProfile?.FullName ?? string.Join(" ", new[] { landlord?.FirstName, landlord?.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))),
-                PhoneNumber = landlord?.PhoneNumber ?? string.Empty, LandlordUserId = property.LandlordId ?? string.Empty,
+                PhoneNumber = landlord?.PhoneNumber ?? string.Empty, 
+                LandlordUserId = property.LandlordId ?? string.Empty,
+                
+                //Photos
                 Photos = property.Photos.Where(p => p.IsActive).OrderByDescending(p => p.IsPrimary).ThenBy(p => p.PhotoId)
                     .Select(p => new PropertyPhotoViewModel { PhotoId = p.PhotoId, PhotoPath = p.PhotoPath, IsPrimary = p.IsPrimary }).ToList(),
+                
+                //Amenities
                 Amenities = property.PropertyAmenities.Where(a => a.Amenity.IsActive).Select(a => new AmenityModel
                 { AmenityId = a.Amenity.AmenityId, Name = a.Amenity.Name, Category = a.Amenity.Category ?? string.Empty, Icon = a.Amenity.Icon }).ToList()
             };
