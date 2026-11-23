@@ -1,95 +1,96 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Listings;
-using KasiRoomNetwork.Common.ViewModel.Profiles;
+﻿using KasiRoomNetwork.Common.ViewModel.Profiles;
 using KasiRoomNetwork.Data.DataAccess;
+using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.EntityFrameworkCore;
 
 namespace KasiRoomNetwork.Data.Repositories
 {
     public class ProfileRepository : IProfileRepository
     {
-        private readonly ISqlDataAccess _db;
+        private readonly ApplicationDbContext _db;
 
-        public ProfileRepository(ISqlDataAccess db)
+        public ProfileRepository(ApplicationDbContext db)
         {
             _db = db;
         }
+
         public async Task<ProfilePageViewModel?> GetByUserId(string userId)
         {
-            var result = await _db.GetMultiData<ProfileViewModel, LandlordPublicProfileViewModel, ProfilePageViewModel>(
-                "sp_Profile_Get_By_UserId",
-                (user, landlord) =>
+            var user = await _db.UserProfiles.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId);
+            if (user == null)
+                return null;
+
+            var landlord = await _db.LandlordProfiles.AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+            return new ProfilePageViewModel
+            {
+                UserProfile = new ProfileViewModel
                 {
-                    return new ProfilePageViewModel
-                    {
-                        UserProfile = user,
-                        LandlordProfile = landlord
-                    };
+                    FullName = user.FullName,
+                    PhoneNumber = user.PhoneNumber ?? string.Empty,
+                    City = user.City ?? string.Empty,
+                    Province = user.Province ?? string.Empty
                 },
-                new { UserId = userId },
-                splitOn: "LandlordSplit");
-
-            return result.FirstOrDefault();
+                LandlordProfile = landlord == null ? new LandlordPublicProfileViewModel() : new LandlordPublicProfileViewModel
+                {
+                    UserId = landlord.UserId,
+                    Bio = landlord.Bio,
+                    WhatsAppNumber = landlord.WhatsAppNumber,
+                    IsVerified = landlord.IsVerified,
+                    VerifiedAt = landlord.VerifiedAt,
+                    VerificationNotes = landlord.VerificationNotes
+                }
+            };
         }
-        //public async Task<bool> Exists(string userId)
-        //{
-        //    var result = await _db.GetData<int, dynamic>(
-        //        "sp_Profile_Get_By_UserId",
-        //        new { UserId = userId });
-
-        //    return result.Any();
-        //}
 
         public async Task SaveProfile(ProfilePageViewModel profile, string userId)
         {
-            await _db.SaveData("sp_Profile_Upsert", new
+            var entity = await _db.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (entity == null)
             {
-                userId,
-                profile.UserProfile.FullName,
-                profile.UserProfile.PhoneNumber,
-                profile.UserProfile.City,
-                profile.UserProfile.Province
-            });
+                entity = new UserProfile { UserId = userId, FullName = profile.UserProfile.FullName };
+                _db.UserProfiles.Add(entity);
+            }
+            entity.FullName = profile.UserProfile.FullName;
+            entity.PhoneNumber = profile.UserProfile.PhoneNumber;
+            entity.City = profile.UserProfile.City;
+            entity.Province = profile.UserProfile.Province;
+            await _db.SaveChangesAsync();
         }
 
         public async Task SaveLandlordProfile(ProfilePageViewModel profile, string userId)
         {
-            await _db.SaveData("sp_LandlordProfile_Create", new
+            var userProfile = await _db.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (userProfile == null)
             {
-                userId,
-                profile.UserProfile.FullName,
-                profile.UserProfile.PhoneNumber,
-                profile.LandlordProfile.WhatsAppNumber,
-                profile.UserProfile.City,
-                profile.UserProfile.Province,
-                profile.LandlordProfile.Bio
-            });
+                userProfile = new UserProfile { UserId = userId, FullName = profile.UserProfile.FullName };
+                _db.UserProfiles.Add(userProfile);
+            }
+            userProfile.FullName = profile.UserProfile.FullName;
+            userProfile.PhoneNumber = profile.UserProfile.PhoneNumber;
+            userProfile.City = profile.UserProfile.City;
+            userProfile.Province = profile.UserProfile.Province;
+
+            var landlord = await _db.LandlordProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (landlord == null)
+            {
+                landlord = new LandlordProfile { UserId = userId };
+                _db.LandlordProfiles.Add(landlord);
+            }
+            landlord.WhatsAppNumber = profile.LandlordProfile.WhatsAppNumber;
+            landlord.Bio = profile.LandlordProfile.Bio;
+            await _db.SaveChangesAsync();
         }
 
         public async Task<bool> IsComplete(string userId)
         {
             var profile = await GetByUserId(userId);
-            if (profile == null)
-                return false;
-
-            return !string.IsNullOrWhiteSpace(profile.UserProfile.FullName)
+            return profile != null
+                && !string.IsNullOrWhiteSpace(profile.UserProfile.FullName)
                 && !string.IsNullOrWhiteSpace(profile.UserProfile.PhoneNumber)
                 && !string.IsNullOrWhiteSpace(profile.UserProfile.City)
                 && !string.IsNullOrWhiteSpace(profile.UserProfile.Province);
         }
-
-        //public async Task<LandlordPublicProfileViewModel?> GetLandlordPublic(string userId)
-        //{
-        //    var result = await _db.GetData<LandlordPublicProfileViewModel, dynamic>(
-        //       "sp_Profile_LandlordProfile_Public",
-        //       new { UserId = userId });
-
-        //    return result.FirstOrDefault();
-        //}
     }
 }
