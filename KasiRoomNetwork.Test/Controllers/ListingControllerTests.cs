@@ -240,6 +240,81 @@ namespace KasiRoomNetwork.Test.Controllers
             redirect.RouteValues!["listingId"].Should().Be(50);
         }
 
+        [Fact]
+        public async Task CreateListing_Post_Should_Forbid_When_Property_Belongs_To_Another_Landlord()
+        {
+            var listingRepoMock = new Mock<IListingRepository>();
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+            var photoStorageMock = new Mock<IPhotoStorageService>();
+
+            profileRepoMock.Setup(x => x.IsComplete("user-123")).ReturnsAsync(true);
+            propertyRepoMock.Setup(x => x.GetPropertyById(77)).ReturnsAsync(new PropertyDetailsViewModel
+            {
+                PropertyId = 77,
+                LandlordUserId = "different-landlord"
+            });
+
+            var controller = new ListingController(
+                listingRepoMock.Object,
+                profileRepoMock.Object,
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
+                Mock.Of<Microsoft.Extensions.Logging.ILogger<ListingController>>(),
+                photoStorageMock.Object);
+            ControllerTestHelper.SetupController(controller);
+
+            var result = await controller.CreateListing(new CreateListingViewModel
+            {
+                PropertyId = 77,
+                Title = "Attempted cross-landlord listing"
+            });
+
+            result.Should().BeOfType<ForbidResult>();
+            listingRepoMock.Verify(x => x.CreateListing(It.IsAny<CreateListingViewModel>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task EditListing_Post_Should_Forbid_When_Property_Belongs_To_Another_Landlord()
+        {
+            var listingRepoMock = new Mock<IListingRepository>();
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+            var photoStorageMock = new Mock<IPhotoStorageService>();
+
+            var listing = Listing();
+            listing.PropertyId = 77;
+            listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(listing);
+            propertyRepoMock.Setup(x => x.GetPropertyById(77)).ReturnsAsync(new PropertyDetailsViewModel
+            {
+                PropertyId = 77,
+                LandlordUserId = "different-landlord"
+            });
+
+            var controller = new ListingController(
+                listingRepoMock.Object,
+                profileRepoMock.Object,
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
+                Mock.Of<Microsoft.Extensions.Logging.ILogger<ListingController>>(),
+                photoStorageMock.Object);
+            ControllerTestHelper.SetupController(controller);
+
+            var result = await controller.EditListing(new EditListingViewModel
+            {
+                ListingId = 10,
+                PropertyId = 77,
+                Title = "Edited listing",
+                Price = 2500,
+                AvailableUnits = 1
+            });
+
+            result.Should().BeOfType<ForbidResult>();
+            listingRepoMock.Verify(x => x.UpdateListing(It.IsAny<EditListingViewModel>(), It.IsAny<string>()), Times.Never);
+        }
+
         private static ListingDetailsViewModel Listing(int listingId = 10, string landlordUserId = "user-123")
         {
             return new ListingDetailsViewModel
