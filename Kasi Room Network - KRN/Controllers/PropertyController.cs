@@ -1,10 +1,10 @@
+using System.Security.Claims;
 using Kasi_Room_Network___KRN.Constants;
 using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -18,8 +18,8 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly ILogger<PropertyController> _logger;
 
         public PropertyController(IPropertyRepository propertyRepository,
-            IProfileRepository profileRepository, 
-            ILandlordRepository landlordRepository, 
+            IProfileRepository profileRepository,
+            ILandlordRepository landlordRepository,
             IAmenityRepository amenityRepository,
             IPhotoStorageService photoStorageService,
             ILogger<PropertyController> logger)
@@ -119,11 +119,11 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
             catch (Exception ex)
             {
-               _logger.LogError(
-                    ex,
-                    "Failed to create property for landlord {LandlordUserId}.",
-                    landlordUserId
-                );
+                _logger.LogError(
+                     ex,
+                     "Failed to create property for landlord {LandlordUserId}.",
+                     landlordUserId
+                 );
 
                 ModelState.AddModelError("", "Unable to create property at this time. Please try again later.");
                 var amenities = await _amenityRepository.GetAllAmenities();
@@ -170,7 +170,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             ViewBag.PropertyId = propertyId;
             ViewBag.PhotoCount = await _propertyRepository.GetPropertyPhotoCount(propertyId);
-            return View(); 
+            return View();
         }
 
         [Authorize(Roles = "Landlord")]
@@ -248,9 +248,10 @@ namespace Kasi_Room_Network___KRN.Controllers
                 ModelState.AddModelError("", ex.Message);
                 return View();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(!string.IsNullOrWhiteSpace(dbPath)){
+                if (!string.IsNullOrWhiteSpace(dbPath))
+                {
                     _photoStorageService.DeletePhoto(dbPath);
                 }
 
@@ -329,7 +330,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             //{
             //    _logger.LogWarning(
             //        "Landlord {LandlordUserId} attempted unauthorized access to EditProperty of Property {PropertyId}", landlordUserId, propertyId);
-//
+            //
             //    return Forbid();
             //}
 
@@ -342,7 +343,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         public async Task<IActionResult> EditProperty(EditPropertyViewModel model)
         {
             if (!ModelState.IsValid)
-            {             
+            {
                 return View(model);
             }
 
@@ -356,7 +357,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                
+
                 await _propertyRepository.UpdatePropertyAsync(model, landlordUserId);
                 TempData["SuccessMessage"] = "Property updated successfully.";
 
@@ -369,11 +370,11 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
             catch (Exception ex)
             {
-                
+
                 _logger.LogError(
                     ex,
                     "Landlord {LandlordUserId} could not update property {PropertyId}.",
-                    landlordUserId, 
+                    landlordUserId,
                     model.PropertyId
                 );
 
@@ -395,12 +396,12 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-               
+
                 await _propertyRepository.DeletePropertyAsync(propertyId, landlordUserId);
-                
+
 
                 _logger.LogInformation(
-                    "Property {PropertyId} of Landlord {LandlordID} was deleted successfully.", 
+                    "Property {PropertyId} of Landlord {LandlordID} was deleted successfully.",
                     propertyId, landlordUserId
                 );
 
@@ -412,7 +413,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 _logger.LogError(
                     ex,
                     "Landlord {LandlordUserId} Could not Delete property {PropertyId}.",
-                    landlordUserId, 
+                    landlordUserId,
                     propertyId
                 );
                 TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
@@ -478,7 +479,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                
+
                 dbPath = await _photoStorageService
                     .SaveOptimizedImageAsync(
                         photo,
@@ -523,12 +524,13 @@ namespace Kasi_Room_Network___KRN.Controllers
                     propertyId
                 );
 
-                ModelState.AddModelError("",ex.Message);
+                ModelState.AddModelError("", ex.Message);
                 return View("ManagePropertyPhotos", viewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(!string.IsNullOrWhiteSpace(dbPath)){
+                if (!string.IsNullOrWhiteSpace(dbPath))
+                {
                     _photoStorageService.DeletePhoto(dbPath);
                 }
 
@@ -543,7 +545,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 );
 
                 return View("ManagePropertyPhotos", viewModel);
-            }  
+            }
         }
 
         public IActionResult PropertySubmitted(int propertyId)
@@ -574,9 +576,9 @@ namespace Kasi_Room_Network___KRN.Controllers
             try
             {
                 await _propertyRepository.DeletePropertyPhoto(photoId, propertyId, landlordUserId);
-                
+
                 _logger.LogInformation(
-                    "Photo {PhotoID} Of Property {PropertyId} of Landlord {LandlordID} was deleted successfully.", 
+                    "Photo {PhotoID} Of Property {PropertyId} of Landlord {LandlordID} was deleted successfully.",
                     photoId, propertyId, landlordUserId
                 );
 
@@ -589,7 +591,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     ex,
                     "Landlord {LandlordUserId} Could not delete Photo {PhotoId} of property {PropertyId}.",
                     landlordUserId,
-                    photoId, 
+                    photoId,
                     propertyId
                 );
 
@@ -653,7 +655,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            var model = await _amenityRepository.GetPropertyAmenitiesForEditAsync(propertyId,landlordId);
+            var model = await _amenityRepository.GetPropertyAmenitiesForEditAsync(propertyId, landlordId);
 
             if (model == null)
                 return NotFound();
@@ -663,7 +665,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         [Authorize(Roles = "Landlord")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPropertyAmenities( EditPropertyAmenitiesViewModel model)
+        public async Task<IActionResult> EditPropertyAmenities(EditPropertyAmenitiesViewModel model)
         {
             var landlordId =
                 User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -698,7 +700,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 );
                 TempData["ErrorMessage"] = "Unable to update amenities at this time. Please try again later.";
                 return RedirectToAction(nameof(PropertyDetails), new { propertyId = model.PropertyId });
-            } 
+            }
         }
     }
 }

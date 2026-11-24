@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Profiles;
+using KasiRoomNetwork.Common.ViewModel.Profiles;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +26,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var isLandlord = User.IsInRole("Landlord");
-           
+
             if (string.IsNullOrEmpty(userId))
             {
                 return Challenge();

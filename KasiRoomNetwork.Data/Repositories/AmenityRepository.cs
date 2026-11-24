@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Common.Models;
+using KasiRoomNetwork.Common.Models;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;

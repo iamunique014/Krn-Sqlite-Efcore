@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Data.Domain.Models;
+using KasiRoomNetwork.Data.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

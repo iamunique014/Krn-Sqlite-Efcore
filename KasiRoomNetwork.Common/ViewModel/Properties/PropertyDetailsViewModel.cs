@@ -1,9 +1,9 @@
-﻿using KasiRoomNetwork.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KasiRoomNetwork.Common.Models;
 
 namespace KasiRoomNetwork.Common.ViewModel.Properties
 {
@@ -15,7 +15,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Properties
         public int TotalRooms { get; set; }
 
         public string PropertyType { get; set; }
-        
+
         public bool IsVerified { get; set; }
         public string VerificationNotes { get; set; }
         public DateTime VerifiedOn { get; set; }

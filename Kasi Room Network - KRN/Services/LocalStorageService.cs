@@ -1,11 +1,10 @@
 using Kasi_Room_Network___KRN.Constants;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
-
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 
 namespace Kasi_Room_Network___KRN.Services
 {
@@ -19,7 +18,7 @@ namespace Kasi_Room_Network___KRN.Services
         ? "uploads-test"
         : "uploads";
 
-        public LocalStorageService (IWebHostEnvironment webHostEnvironment)
+        public LocalStorageService(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -29,7 +28,7 @@ namespace Kasi_Room_Network___KRN.Services
             ValidatePhoto(photo);
 
             //var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-            
+
             var safeLandlordUserId = SanitizePathSegment(landlordUserId);
             var uploadsFolder = Path.Combine(
                 _webHostEnvironment.WebRootPath,
@@ -51,23 +50,23 @@ namespace Kasi_Room_Network___KRN.Services
 
                 using var image = await Image.LoadAsync(photo.OpenReadStream());
 
-                    image.Mutate(x =>
-                        x.Resize(new ResizeOptions
-                        {
-                            Mode = ResizeMode.Max,
-                            Size = new Size(1200, 1200)
-                        }));
+                image.Mutate(x =>
+                    x.Resize(new ResizeOptions
+                    {
+                        Mode = ResizeMode.Max,
+                        Size = new Size(1200, 1200)
+                    }));
 
-                    await image.SaveAsJpegAsync(
-                        filePath,
-                        new JpegEncoder
-                        {
-                            Quality = 80
-                        });
+                await image.SaveAsJpegAsync(
+                    filePath,
+                    new JpegEncoder
+                    {
+                        Quality = 80
+                    });
 
                 //using (var stream = new FileStream(filePath, FileMode.Create))
                 //{
-                 //   await photo.CopyToAsync(stream);
+                //   await photo.CopyToAsync(stream);
                 //}
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
@@ -135,7 +134,7 @@ namespace Kasi_Room_Network___KRN.Services
                 {
                     await sourceStream.CopyToAsync(destinationStream);
                 }
-                
+
                 // Note: We do not delete the source file here to allow the same temporary photo 
                 // to be copied multiple times (e.g., once for the property and once for the listing).
                 // Cleanup is handled at the end of the wizard or via background expiration.
@@ -269,7 +268,7 @@ namespace Kasi_Room_Network___KRN.Services
                 }
             }
         }
-        public async Task<string> SaveOptimizedImageAsync(IFormFile photo,ImageCategory category)
+        public async Task<string> SaveOptimizedImageAsync(IFormFile photo, ImageCategory category)
         {
             ValidatePhoto(photo);
 

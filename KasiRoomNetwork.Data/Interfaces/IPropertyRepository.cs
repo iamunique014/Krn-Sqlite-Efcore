@@ -6,11 +6,11 @@ namespace KasiRoomNetwork.Data.Interfaces
     {
         Task<int> CreateProperty(CreatePropertyViewModel model, string landlordUserId);
         Task DeletePropertyAsync(int propertyId, string landlordId);
-        
+
         Task<EditPropertyViewModel?> GetPropertyForEditAsync(int propertyId, string landlordId);
-        
+
         Task UpdatePropertyAsync(EditPropertyViewModel model, string landlordId);
-        
+
         Task<List<LandlordPropertyViewModel>> GetPropertiesByUser(string landlordUserId);
         // sp_Add_Property_Photo
         Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId);

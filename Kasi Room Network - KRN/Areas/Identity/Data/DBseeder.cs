@@ -1,9 +1,9 @@
-﻿using Kasi_Room_Network___KRN.Constants;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using System.Data;
+using Kasi_Room_Network___KRN.Constants;
 using KasiRoomNetwork.Data.Domain.Models;
 using Microsoft.AspNetCore.Identity;
-using System.Data;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kasi_Room_Network___KRN.Areas.Identity.Data
 {
@@ -19,11 +19,11 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Data
             var userManager = service.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = service.GetRequiredService<RoleManager<IdentityRole>>();
 
-            if(!await roleManager.RoleExistsAsync(Roles.Admin.ToString())) 
+            if (!await roleManager.RoleExistsAsync(Roles.Admin.ToString()))
                 await roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
-            if(!await roleManager.RoleExistsAsync(Roles.Tenant.ToString())) 
+            if (!await roleManager.RoleExistsAsync(Roles.Tenant.ToString()))
                 await roleManager.CreateAsync(new IdentityRole(Roles.Tenant.ToString()));
-            if(!await roleManager.RoleExistsAsync(Roles.Landlord.ToString())) 
+            if (!await roleManager.RoleExistsAsync(Roles.Landlord.ToString()))
                 await roleManager.CreateAsync(new IdentityRole(Roles.Landlord.ToString()));
 
             if (string.IsNullOrWhiteSpace(email))
@@ -48,7 +48,7 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Data
                 {
                     await userManager.AddToRoleAsync(user, Roles.Admin.ToString());
                 }
-                
+
             }
         }
     }

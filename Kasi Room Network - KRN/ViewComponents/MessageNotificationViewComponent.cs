@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Messaging;
+using KasiRoomNetwork.Common.ViewModel.Messaging;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Identity;

@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Messaging;
+using KasiRoomNetwork.Common.ViewModel.Messaging;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +45,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             // if profile exists continue
-            return RedirectToAction("StartConversation", new { listingId, landlordId, returnUrl});
+            return RedirectToAction("StartConversation", new { listingId, landlordId, returnUrl });
         }
 
         [Authorize(Roles = "Tenant")]
@@ -86,7 +86,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     listingId
                 );
 
-                return RedirectToAction("Conversation", new { conversationId, returnUrl});
+                return RedirectToAction("Conversation", new { conversationId, returnUrl });
             }
             catch (Exception ex)
             {
@@ -189,7 +189,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 _logger.LogError(ex,
                     "User {UserId} Could not send a Message in conversation {ConversationId}.",
-                    userId, 
+                    userId,
                     model.ConversationId
                 );
 

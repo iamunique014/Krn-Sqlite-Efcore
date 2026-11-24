@@ -1,5 +1,5 @@
-using KasiRoomNetwork.Common.DTOs;
 using Kasi_Room_Network___KRN.Services;
+using KasiRoomNetwork.Common.DTOs;
 using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
@@ -83,7 +83,7 @@ namespace Kasi_Room_Network___KRN.Services
                     Price = dto.Price
                 };
                 listingId = await _listingRepository.CreateListing(createListingViewModel, dto.LandlordUserId);
-    
+
                 // 5. Add Listing Photos (Only Last photo is set to primary by stored procedure)
                 foreach (var selectedListingPhotoPath in dto.SelectedListingPhotoPaths)
                 {

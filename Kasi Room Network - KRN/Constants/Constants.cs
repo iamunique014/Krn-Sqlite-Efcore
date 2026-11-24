@@ -1,4 +1,4 @@
-﻿namespace Kasi_Room_Network___KRN.Constants
+namespace Kasi_Room_Network___KRN.Constants
 {
     public enum Roles
     {

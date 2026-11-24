@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Common.Models;
+using KasiRoomNetwork.Common.Models;
 using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
@@ -75,18 +75,31 @@ namespace KasiRoomNetwork.Data.Repositories
             var landlord = listing.Property.Landlord;
             return new ListingDetailsViewModel
             {
-                ListingId = listing.ListingId, Title = listing.Title, Description = listing.Description ?? string.Empty,
-                Price = listing.Price, IsAvailable = listing.IsAvailable, AvailableUnits = listing.AvailableUnits,
-                IsVerified = listing.IsVerified, VerificationNotes = listing.VerificationNotes ?? string.Empty,
-                VerifiedOn = listing.VerifiedOn ?? default, CreatedAt = listing.CreatedAt,
-                PropertyId = listing.PropertyId, PropertyName = listing.Property.PropertyName ?? string.Empty,
-                PropertyType = listing.Property.PropertyType ?? string.Empty, TotalRooms = listing.Property.TotalRooms ?? 0,
-                PropertyVerified = listing.Property.IsVerified, Province = listing.Property.Address.Province,
-                City = listing.Property.Address.City ?? string.Empty, Suburb = listing.Property.Address.Suburb ?? string.Empty,
-                Street = listing.Property.Address.Street, LandlordUserId = listing.LandlordUserId ?? string.Empty,
+                ListingId = listing.ListingId,
+                Title = listing.Title,
+                Description = listing.Description ?? string.Empty,
+                Price = listing.Price,
+                IsAvailable = listing.IsAvailable,
+                AvailableUnits = listing.AvailableUnits,
+                IsVerified = listing.IsVerified,
+                VerificationNotes = listing.VerificationNotes ?? string.Empty,
+                VerifiedOn = listing.VerifiedOn ?? default,
+                CreatedAt = listing.CreatedAt,
+                PropertyId = listing.PropertyId,
+                PropertyName = listing.Property.PropertyName ?? string.Empty,
+                PropertyType = listing.Property.PropertyType ?? string.Empty,
+                TotalRooms = listing.Property.TotalRooms ?? 0,
+                PropertyVerified = listing.Property.IsVerified,
+                Province = listing.Property.Address.Province,
+                City = listing.Property.Address.City ?? string.Empty,
+                Suburb = listing.Property.Address.Suburb ?? string.Empty,
+                Street = listing.Property.Address.Street,
+                LandlordUserId = listing.LandlordUserId ?? string.Empty,
                 FullName = landlord?.UserProfile?.FullName ?? string.Join(" ", new[] { landlord?.FirstName, landlord?.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))),
-                PhoneNumber = landlord?.PhoneNumber ?? string.Empty, WhatsAppNumber = landlord?.LandlordProfile?.WhatsAppNumber,
-                LandlordBio = landlord?.LandlordProfile?.Bio ?? string.Empty, LandlordVerified = landlord?.LandlordProfile?.IsVerified ?? false,
+                PhoneNumber = landlord?.PhoneNumber ?? string.Empty,
+                WhatsAppNumber = landlord?.LandlordProfile?.WhatsAppNumber,
+                LandlordBio = landlord?.LandlordProfile?.Bio ?? string.Empty,
+                LandlordVerified = landlord?.LandlordProfile?.IsVerified ?? false,
                 Photos = listing.Photos.Where(p => p.IsActive).OrderByDescending(p => p.IsPrimary).ThenBy(p => p.PhotoId)
                     .Select(p => new ListingPhotoViewModel { PhotoId = p.PhotoId, PhotoPath = p.PhotoPath, IsPrimary = p.IsPrimary }).ToList(),
                 Amenities = listing.Property.PropertyAmenities.Where(a => a.Amenity.IsActive).Select(a => new AmenityModel
@@ -108,8 +121,12 @@ namespace KasiRoomNetwork.Data.Repositories
             if (searchModel.MaxPrice.HasValue) query = query.Where(l => l.Price <= searchModel.MaxPrice.Value);
             return await query.OrderByDescending(l => l.CreatedAt).Select(l => new ListingSearchResultViewModel
             {
-                ListingId = l.ListingId, Title = l.Title, Price = l.Price, CreatedAt = l.CreatedAt,
-                Province = l.Property.Address.Province, City = l.Property.Address.City ?? string.Empty,
+                ListingId = l.ListingId,
+                Title = l.Title,
+                Price = l.Price,
+                CreatedAt = l.CreatedAt,
+                Province = l.Property.Address.Province,
+                City = l.Property.Address.City ?? string.Empty,
                 Suburb = l.Property.Address.Suburb ?? string.Empty,
                 PrimaryPhoto = l.Photos.Where(p => p.IsActive && p.IsPrimary).Select(p => p.PhotoPath).FirstOrDefault()
             }).ToListAsync();
@@ -123,10 +140,16 @@ namespace KasiRoomNetwork.Data.Repositories
                 .FirstOrDefaultAsync(l => l.ListingId == listingId && l.LandlordUserId == landlordUserId && l.IsActive);
             return listing == null ? null : new EditListingViewModel
             {
-                ListingId = listing.ListingId, PropertyId = listing.PropertyId, Title = listing.Title,
-                Description = listing.Description ?? string.Empty, Price = listing.Price, AvailableUnits = listing.AvailableUnits,
-                IsAvailable = listing.IsAvailable, PropertyName = listing.Property.PropertyName,
-                City = listing.Property.Address.City, Suburb = listing.Property.Address.Suburb
+                ListingId = listing.ListingId,
+                PropertyId = listing.PropertyId,
+                Title = listing.Title,
+                Description = listing.Description ?? string.Empty,
+                Price = listing.Price,
+                AvailableUnits = listing.AvailableUnits,
+                IsAvailable = listing.IsAvailable,
+                PropertyName = listing.Property.PropertyName,
+                City = listing.Property.Address.City,
+                Suburb = listing.Property.Address.Suburb
             };
         }
 

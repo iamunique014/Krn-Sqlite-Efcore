@@ -1,10 +1,10 @@
-﻿using Kasi_Room_Network___KRN.Constants;
+using System.Security.Claims;
+using Kasi_Room_Network___KRN.Constants;
 using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -77,92 +77,92 @@ namespace Kasi_Room_Network___KRN.Controllers
         }
 
         [Authorize(Roles = "Landlord")]
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> CreateListing(CreateListingViewModel model)
-{
-    var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateListing(CreateListingViewModel model)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (string.IsNullOrWhiteSpace(landlordUserId))
-    {
-        return Challenge();
-    }
-
-    var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
-
-    if (!hasCompleteProfile)
-    {
-        TempData["ProfilePrompt"] =
-            "Complete your profile first to continue posting your room.";
-
-        return RedirectToAction(
-            "MyProfile",
-            "Profile",
-            new
+            if (string.IsNullOrWhiteSpace(landlordUserId))
             {
-                returnUrl = Url.Action(
-                    "CreateListing",
-                    "Listing",
-                    new { propertyId = model.PropertyId })
-            });
-    }
+                return Challenge();
+            }
 
-    var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+            var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
 
-    if (property == null)
-    {
-        return NotFound();
-    }
+            if (!hasCompleteProfile)
+            {
+                TempData["ProfilePrompt"] =
+                    "Complete your profile first to continue posting your room.";
 
-    if (property.LandlordUserId != landlordUserId)
-    {
-        return Forbid();
-    }
+                return RedirectToAction(
+                    "MyProfile",
+                    "Profile",
+                    new
+                    {
+                        returnUrl = Url.Action(
+                            "CreateListing",
+                            "Listing",
+                            new { propertyId = model.PropertyId })
+                    });
+            }
 
-    if (!ModelState.IsValid)
-    {
-        model.PropertyName = property.PropertyName;
-        model.Suburb = property.Suburb;
-        model.City = property.City;
+            var property = await _propertyRepository.GetPropertyById(model.PropertyId);
 
-        return View(model);
-    }
+            if (property == null)
+            {
+                return NotFound();
+            }
 
-    
+            if (property.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
+            }
 
-    try
-    {
-        var listingId = await _listingRepository.CreateListing(
-            model,
-            landlordUserId);
+            if (!ModelState.IsValid)
+            {
+                model.PropertyName = property.PropertyName;
+                model.Suburb = property.Suburb;
+                model.City = property.City;
 
-        _logger.LogInformation(
-            "Created listing for landlord {LandlordUserId}. Moving to photos.",
-            landlordUserId);
+                return View(model);
+            }
 
-        return RedirectToAction(
-            nameof(AddListingPhotos),
-            new { listingId });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(
-            ex,
-            "An unexpected error occurred while creating a listing " +
-            "for landlord {LandlordUserId}.",
-            landlordUserId);
 
-        ModelState.AddModelError(
-            string.Empty,
-            "Unable to create listing at this time. Please try again later.");
 
-        model.PropertyName = property.PropertyName;
-        model.Suburb = property.Suburb;
-        model.City = property.City;
+            try
+            {
+                var listingId = await _listingRepository.CreateListing(
+                    model,
+                    landlordUserId);
 
-        return View(model);
-    }
-}
+                _logger.LogInformation(
+                    "Created listing for landlord {LandlordUserId}. Moving to photos.",
+                    landlordUserId);
+
+                return RedirectToAction(
+                    nameof(AddListingPhotos),
+                    new { listingId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An unexpected error occurred while creating a listing " +
+                    "for landlord {LandlordUserId}.",
+                    landlordUserId);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Unable to create listing at this time. Please try again later.");
+
+                model.PropertyName = property.PropertyName;
+                model.Suburb = property.Suburb;
+                model.City = property.City;
+
+                return View(model);
+            }
+        }
 
         // =========================
         // ADD PHOTOS
@@ -240,7 +240,7 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
                 if (!added)
                 {
                     _logger.LogWarning(
-                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.", 
+                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.",
                             listingId
                     );
 
@@ -268,15 +268,16 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
                 ModelState.AddModelError("", ex.Message);
                 return View();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(!string.IsNullOrWhiteSpace(dbPath)){
+                if (!string.IsNullOrWhiteSpace(dbPath))
+                {
                     _photoStorageService.DeletePhoto(dbPath);
                 }
 
                 _logger.LogError(
                     ex,
-                    "Unexpected error while uploading photo for listing {listingId}.", 
+                    "Unexpected error while uploading photo for listing {listingId}.",
                     listingId
                 );
 
@@ -344,7 +345,7 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
             {
                 _logger.LogInformation("Listing search. City={City}, Suburb={Suburb}, Province={Province}",
                     model.City,
-                    model.Suburb, 
+                    model.Suburb,
                     model.Province
                 );
                 model.Results =
@@ -428,7 +429,7 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
                 if (!updated)
                 {
                     _logger.LogWarning(
-                        "Landlord {LandlordUserId} Failed updating listing {listingId}", 
+                        "Landlord {LandlordUserId} Failed updating listing {listingId}",
                         model.ListingId,
                         landlordUserId
                     );
@@ -539,7 +540,7 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
                 if (!added)
                 {
                     _logger.LogWarning(
-                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.", 
+                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.",
                             listingId
                     );
 
@@ -555,29 +556,30 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
                 _logger.LogInformation("Photo uploaded successfully for listing {listingId}.", listingId);
 
                 TempData["SuccessMessage"] = "Photo uploaded successfully";
-            
+
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(
                     ex,
-                    "Photo validation failed for listing {ListingId}.", 
+                    "Photo validation failed for listing {ListingId}.",
                     listingId
                 );
 
                 ModelState.AddModelError("", ex.Message);
                 return View("ManageListingPhotos", viewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(!string.IsNullOrWhiteSpace(dbPath)){
+                if (!string.IsNullOrWhiteSpace(dbPath))
+                {
                     _photoStorageService.DeletePhoto(dbPath);
                 }
 
                 _logger.LogError(
                     ex,
-                    "Unexpected error while uploading photo for listing {listingId}.", 
+                    "Unexpected error while uploading photo for listing {listingId}.",
                     listingId
                 );
 
@@ -613,14 +615,14 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
             try
             {
                 _logger.LogInformation(
-                    "Deleting listing photo of {listingId} by Landlord {LandlordID}.", 
+                    "Deleting listing photo of {listingId} by Landlord {LandlordID}.",
                     listingId, landlordUserId
                 );
 
                 await _listingRepository.DeleteListingPhoto(photoId, listingId, landlordUserId);
-                
+
                 _logger.LogInformation(
-                    "Photo {PhotoID} Of listing {listingId} of Landlord {LandlordID} was deleted successfully.", 
+                    "Photo {PhotoID} Of listing {listingId} of Landlord {LandlordID} was deleted successfully.",
                     photoId, listingId, landlordUserId
                 );
 
@@ -639,7 +641,7 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
         }
-        
+
 
         [Authorize(Roles = "Landlord")]
         [HttpPost]
@@ -686,7 +688,7 @@ public async Task<IActionResult> CreateListing(CreateListingViewModel model)
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
 
-            
+
         }
     }
 }

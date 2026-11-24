@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Admin;
+using KasiRoomNetwork.Common.ViewModel.Admin;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,9 +16,9 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         public AdminController(
             ILogger<AdminController> logger,
-            IAdminRepository 
-            adminRepository, 
-            UserManager<ApplicationUser> 
+            IAdminRepository
+            adminRepository,
+            UserManager<ApplicationUser>
             userManager)
         {
             _logger = logger;
@@ -49,7 +49,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             return View(properties);
         }
         public async Task<IActionResult> UnverifiedLandlords()
-            {
+        {
             var landlords = await _adminRepository.GetUnverifiedLandlordsAsync();
             return View(landlords);
         }
@@ -69,7 +69,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             return View(listing);
         }
         public async Task<IActionResult> ReviewLandlord(
-            string id, 
+            string id,
             int landlordId)
         {
             if (string.IsNullOrWhiteSpace(id) && landlordId == 0)
