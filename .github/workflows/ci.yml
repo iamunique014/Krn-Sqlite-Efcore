@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: 8.0.x
+  SOLUTION: KasiRoomNetwork.sln
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore "$SOLUTION"
+
+      - name: Verify formatting
+        run: dotnet format whitespace "$SOLUTION" --no-restore --verify-no-changes
+
+      - name: Build
+        run: dotnet build "$SOLUTION" --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test "$SOLUTION" --no-build --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory ./artifacts/test-results --collect:"XPlat Code Coverage"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: artifacts/test-results
+          if-no-files-found: ignore
+
+      - name: Check vulnerable NuGet packages
+        run: |
+          mkdir -p ./artifacts
+          dotnet list "$SOLUTION" package --vulnerable --include-transitive --format json > ./artifacts/nuget-vulnerabilities.json
+
+      - name: Fail on vulnerable NuGet packages
+        shell: bash
+        run: |
+          if grep -Eq '"severity"[[:space:]]*:[[:space:]]*"(low|moderate|high|critical)"' ./artifacts/nuget-vulnerabilities.json; then
+            echo 'Vulnerable NuGet packages detected.'
+            cat ./artifacts/nuget-vulnerabilities.json
+            exit 1
+          fi

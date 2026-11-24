@@ -34,3 +34,17 @@ dotnet ef database update \
 The old checked-in `krn.db` schema snapshot is removed; a new file is created from the initial EF migration. If you have a separate local copy of the former database, back it up before using it: its pre-existing tables have no EF migration-history record, so automatic migration cannot safely treat it as a fresh database. Use a new file or baseline an existing database only after carefully verifying its schema and data.
 
 The SQL Server scripts under `Database/` are references, not the active SQLite schema. The repository's legacy Dapper/SqlClient stored-procedure services are not converted by EF migrations and still need a separate SQLite port.
+
+## Quality and security checks
+
+Pull requests and pushes to `main` run the .NET restore, whitespace-format verification, Release build, xUnit tests with coverage collection, and transitive NuGet vulnerability checks. The security workflow also runs CodeQL for C#, reviews dependency changes in pull requests, and scans repository history for leaked secrets. Dependabot keeps NuGet and GitHub Actions dependencies current.
+
+Run the main checks locally from the repository root:
+
+```bash
+dotnet restore KasiRoomNetwork.sln
+dotnet format whitespace KasiRoomNetwork.sln --no-restore --verify-no-changes
+dotnet build KasiRoomNetwork.sln --no-restore --configuration Release
+dotnet test KasiRoomNetwork.sln --no-build --configuration Release
+dotnet list KasiRoomNetwork.sln package --vulnerable --include-transitive
+```
