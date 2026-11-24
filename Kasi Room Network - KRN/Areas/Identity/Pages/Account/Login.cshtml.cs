@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
@@ -7,14 +7,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+using KasiRoomNetwork.Data.Domain.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using KasiRoomNetwork.Data.Domain.Models;
 
 namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
 {
@@ -119,13 +119,13 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User logged in.");
 
-                    if(!string.IsNullOrWhiteSpace(returnUrl) 
-                        && returnUrl != Url.Content("~/") 
+                    if (!string.IsNullOrWhiteSpace(returnUrl)
+                        && returnUrl != Url.Content("~/")
                         && Url.IsLocalUrl(returnUrl))
                     {
                         return LocalRedirect(returnUrl);
                     }
-                        
+
 
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)

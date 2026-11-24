@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Kasi_Room_Network___KRN.Controllers
 {
     [Authorize(Roles = "Tenant")]
-    public class TenantController( 
+    public class TenantController(
         UserManager<ApplicationUser> userManager,
        IProfileRepository profileRepository) : Controller
     {

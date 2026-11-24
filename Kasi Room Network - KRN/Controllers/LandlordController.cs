@@ -1,11 +1,11 @@
-﻿using KasiRoomNetwork.Data.Domain.Models;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -46,7 +46,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 {
                     return RedirectToAction("LandLordDashboard", "Landlord");
                 }
-                
+
             }
 
             return View();
@@ -78,7 +78,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [Authorize(Roles = "Landlord")]
         [HttpGet]
-        public async Task<IActionResult> MyRooms() 
+        public async Task<IActionResult> MyRooms()
         {
             var landlordId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

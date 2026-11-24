@@ -1,4 +1,4 @@
-﻿namespace Kasi_Room_Network___KRN.Services
+namespace Kasi_Room_Network___KRN.Services
 {
     public class WizardTempCleanupHostedService : BackgroundService
     {

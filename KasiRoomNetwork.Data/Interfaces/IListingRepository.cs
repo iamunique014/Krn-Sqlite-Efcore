@@ -1,17 +1,16 @@
-using KasiRoomNetwork.Common.ViewModel.Listings;
 using System;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KasiRoomNetwork.Common.ViewModel.Listings;
 
 namespace KasiRoomNetwork.Data.Interfaces
 {
     public interface IListingRepository
     {
         // sp_Create_Listing
-        Task<int> CreateListing(CreateListingViewModel model,string landlordUserId);
+        Task<int> CreateListing(CreateListingViewModel model, string landlordUserId);
         // sp_Delete_Listing
         Task DeleteListing(int listingId);
 

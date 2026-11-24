@@ -13,7 +13,7 @@ namespace Kasi_Room_Network___KRN.Services
     public class AzureBlobStorageService : IPhotoStorageService
     {
         private const long MaxPhotoSizeBytes = 5 * 1024 * 1024;
-        private static readonly string[] AllowedExtensions = {".jpg", ".jpeg", ".png"};
+        private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png" };
         private readonly BlobServiceClient _blobServiceClient;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -67,7 +67,7 @@ namespace Kasi_Room_Network___KRN.Services
 
             //using (var stream = photo.OpenReadStream())
             //{
-              //  await blobClient.UploadAsync(stream, true);
+            //  await blobClient.UploadAsync(stream, true);
             //}
 
             return blobClient.Uri.ToString();
@@ -88,12 +88,12 @@ namespace Kasi_Room_Network___KRN.Services
             var uri = new Uri(tempRelativePath);
             var blobNameWithContainer = uri.AbsolutePath.TrimStart('/');
             var parts = blobNameWithContainer.Split('/');
-            
+
             if (parts.Length < 2)
             {
-                 throw new InvalidOperationException("Invalid temporary photo path.");
+                throw new InvalidOperationException("Invalid temporary photo path.");
             }
-            
+
             var sourceContainerName = parts[0];
             var sourceBlobName = string.Join("/", parts.Skip(1));
 
@@ -120,7 +120,7 @@ namespace Kasi_Room_Network___KRN.Services
             var destinationBlobClient = destinationContainerClient.GetBlobClient(newBlobName);
 
             await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
-            
+
             // BUG IDENTIFIED: Deleting the source blob here causes subsequent copies of the same 
             // temporary photo (e.g., when used for both Property and Listing) to fail because 
             // the source no longer exists.
@@ -133,17 +133,17 @@ namespace Kasi_Room_Network___KRN.Services
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(ImageCategory.WizardTemp));
             if (!containerClient.Exists()) return;
-            
+
             var prefix = $"wizard-temp/{landlordUserId}/";
             var blobs = containerClient.GetBlobs(BlobTraits.None, BlobStates.None, prefix, CancellationToken.None);
-            
+
             try
             {
                 foreach (var blob in blobs)
                 {
                     containerClient.DeleteBlobIfExists(blob.Name);
                 }
-            
+
             }
             catch
             {

@@ -1,13 +1,13 @@
+using System.Security.Claims;
+using System.Text.Json;
 using Kasi_Room_Network___KRN.Constants;
 using Kasi_Room_Network___KRN.Services;
-using KasiRoomNetwork.Common.ViewModel.Properties;
+using KasiRoomNetwork.Common.DTOs;
 using KasiRoomNetwork.Common.ViewModel.CreatePropertyWizard;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Text.Json;
-using KasiRoomNetwork.Common.DTOs;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -24,8 +24,8 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly ILogger<PropertyController> _logger;
 
         public CreatePropertyController(IPropertyRepository propertyRepository,
-            IProfileRepository profileRepository, 
-            ILandlordRepository landlordRepository, 
+            IProfileRepository profileRepository,
+            ILandlordRepository landlordRepository,
             IAmenityRepository amenityRepository,
             IPhotoStorageService photoStorageService,
             ICreatePropertyService CreatePropertyService,
@@ -39,8 +39,8 @@ namespace Kasi_Room_Network___KRN.Controllers
             _createPropertyService = CreatePropertyService;
             _logger = logger;
         }
-        
-         [HttpGet]
+
+        [HttpGet]
         public async Task<IActionResult> Start()
         {
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -411,7 +411,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             try
-            { 
+            {
                 var dto = new CreatePropertyWizardDto
                 {
                     LandlordUserId = landlordUserId,
@@ -430,7 +430,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 var propertyId = await _createPropertyService.CreatePropertyAsync(dto);
 
                 HttpContext.Session.Remove(GetSessionKey(landlordUserId));
-               
+
                 _logger.LogInformation("Landlord {LandlordUserId} Created property {CreatedPropertyId} via wizard. Wizard Complete",
                     landlordUserId,
                     propertyId
@@ -443,7 +443,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 _logger.LogWarning(
                     ex,
-                    "Wizard submission failed validation. Landlord {LandlordUserId}.", 
+                    "Wizard submission failed validation. Landlord {LandlordUserId}.",
                     landlordUserId);
 
                 ModelState.AddModelError("", ex.Message);
@@ -534,7 +534,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 .Select(group => group.First());
         }
 
-         private void SaveWizardState(string landlordUserId, PropertyWizardStateViewModel wizardState)
+        private void SaveWizardState(string landlordUserId, PropertyWizardStateViewModel wizardState)
         {
             var sessionJson = JsonSerializer.Serialize(wizardState);
             HttpContext.Session.SetString(GetSessionKey(landlordUserId), sessionJson);

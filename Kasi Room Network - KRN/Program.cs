@@ -1,11 +1,11 @@
+using Azure.Storage.Blobs;
 using Kasi_Room_Network___KRN.Areas.Identity.Data;
+using Kasi_Room_Network___KRN.Configuration;
+using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Data.Repositories;
-using Kasi_Room_Network___KRN.Services;
-using Kasi_Room_Network___KRN.Configuration;
-using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,7 +45,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<ILandlordRepository, LandlordRepository>();
-builder.Services.AddScoped<IProfileRepository,  ProfileRepository>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IMessagingRepository, MessagingRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();

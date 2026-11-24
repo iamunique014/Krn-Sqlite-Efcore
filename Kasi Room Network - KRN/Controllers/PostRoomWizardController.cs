@@ -1,13 +1,13 @@
+using System.Security.Claims;
+using System.Text.Json;
+using Kasi_Room_Network___KRN.Services;
+using KasiRoomNetwork.Common.DTOs;
 using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Common.ViewModel.PostRoomWizard;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Text.Json;
-using Kasi_Room_Network___KRN.Services;
-using KasiRoomNetwork.Common.DTOs;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -586,7 +586,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             try
-            { 
+            {
                 var dto = new PostRoomWizardDto
                 {
                     LandlordUserId = landlordUserId,
@@ -610,9 +610,9 @@ namespace Kasi_Room_Network___KRN.Controllers
                 var (propertyId, listingId) = await _postRoomWizardService.CreatePropertyAndListingAsync(dto);
 
                 HttpContext.Session.Remove(GetSessionKey(landlordUserId));
-               
+
                 _logger.LogInformation("Landlord {LandlordUserId} Posted Listing {CreatedListingId} of property {CreatedPropertyId} via wizard. Wizard Complete",
-                    landlordUserId, 
+                    landlordUserId,
                     listingId,
                     propertyId
                 );
@@ -624,7 +624,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 _logger.LogWarning(
                     ex,
-                    "Wizard submission failed validation. Landlord {LandlordUserId}.", 
+                    "Wizard submission failed validation. Landlord {LandlordUserId}.",
                     landlordUserId);
 
                 ModelState.AddModelError("", ex.Message);
@@ -641,87 +641,87 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
             }
         }
-/*
-    private async Task CleanupFailedSubmitAsync(
-        int? createdListingId,
-        int? createdPropertyId,
-        IEnumerable<string> copiedPermanentListingPhotoPaths,
-        IEnumerable<string> copiedPermanentPropertyPhotoPaths)
-    {
-        var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        Exception? cleanupException = null;
-
-        try
-        {
-            if (createdListingId.HasValue)
+        /*
+            private async Task CleanupFailedSubmitAsync(
+                int? createdListingId,
+                int? createdPropertyId,
+                IEnumerable<string> copiedPermanentListingPhotoPaths,
+                IEnumerable<string> copiedPermanentPropertyPhotoPaths)
             {
+                var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                Exception? cleanupException = null;
+
                 try
                 {
-                    await _listingRepository.DeleteListing(createdListingId.Value);
+                    if (createdListingId.HasValue)
+                    {
+                        try
+                        {
+                            await _listingRepository.DeleteListing(createdListingId.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(
+                                ex,
+                                "Failed to delete listing {ListingId} during wizard rollback.",
+                                createdListingId.Value);
+
+                            cleanupException ??= ex;
+                        }
+                    }
+
+                    if (createdPropertyId.HasValue)
+                    {
+                        try
+                        {
+                            await _propertyRepository.DeletePropertyAsync(
+                                createdPropertyId.Value,
+                                landlordUserId);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(
+                                ex,
+                                "Failed to delete property {PropertyId} during wizard rollback.",
+                                createdPropertyId.Value);
+
+                            cleanupException ??= ex;
+                        }
+                    }
                 }
-                catch (Exception ex)
+                finally
+                {
+                    try
+                    {
+                        _photoStorageService.DeletePhotos(copiedPermanentListingPhotoPaths);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(
+                            ex,
+                            "Failed to delete copied listing photos during wizard rollback.");
+                    }
+
+                    try
+                    {
+                        _photoStorageService.DeletePhotos(copiedPermanentPropertyPhotoPaths);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(
+                            ex,
+                            "Failed to delete copied property photos during wizard rollback.");
+                    }
+                }
+
+                if (cleanupException != null)
                 {
                     _logger.LogError(
-                        ex,
-                        "Failed to delete listing {ListingId} during wizard rollback.",
-                        createdListingId.Value);
-
-                    cleanupException ??= ex;
+                        cleanupException,
+                        "Wizard rollback completed with one or more cleanup failures.");
                 }
             }
-
-            if (createdPropertyId.HasValue)
-            {
-                try
-                {
-                    await _propertyRepository.DeletePropertyAsync(
-                        createdPropertyId.Value,
-                        landlordUserId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(
-                        ex,
-                        "Failed to delete property {PropertyId} during wizard rollback.",
-                        createdPropertyId.Value);
-
-                    cleanupException ??= ex;
-                }
-            }
-        }
-        finally
-        {
-            try
-            {
-                _photoStorageService.DeletePhotos(copiedPermanentListingPhotoPaths);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Failed to delete copied listing photos during wizard rollback.");
-            }
-
-            try
-            {
-                _photoStorageService.DeletePhotos(copiedPermanentPropertyPhotoPaths);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Failed to delete copied property photos during wizard rollback.");
-            }
-        }
-
-        if (cleanupException != null)
-        {
-            _logger.LogError(
-                cleanupException,
-                "Wizard rollback completed with one or more cleanup failures.");
-        }
-    }
-*/
+        */
         private PostRoomWizardStateViewModel? GetWizardState(string landlordUserId)
         {
             var sessionJson = HttpContext.Session.GetString(GetSessionKey(landlordUserId));

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +12,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         public string Title { get; set; }
         public decimal Price { get; set; }
         public DateTime CreatedAt { get; set; }
-        public bool  IsNew => CreatedAt >= DateTime.Now.AddDays(-30);
+        public bool IsNew => CreatedAt >= DateTime.Now.AddDays(-30);
 
         public string Province { get; set; }
         public string City { get; set; }

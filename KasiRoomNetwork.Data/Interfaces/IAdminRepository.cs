@@ -1,11 +1,11 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Admin;
-using KasiRoomNetwork.Common.ViewModel.Listings;
-using KasiRoomNetwork.Common.ViewModel.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KasiRoomNetwork.Common.ViewModel.Admin;
+using KasiRoomNetwork.Common.ViewModel.Listings;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 
 namespace KasiRoomNetwork.Data.Interfaces
 {
@@ -23,14 +23,14 @@ namespace KasiRoomNetwork.Data.Interfaces
             GetListingPhotosAsync(int listingId);
 
         Task VerifyListingAsync(
-            int listingId, 
+            int listingId,
             string adminUserId,
             bool isApproved,
-            string notes );
+            string notes);
 
         // ===== Property Verification =====
 
-        Task<IEnumerable<UnverifiedPropertyViewModel>> 
+        Task<IEnumerable<UnverifiedPropertyViewModel>>
             GetUnverifiedPropertiesAsync();
         Task<AdminPropertyReviewViewModel>
             GetPropertyForVerificationAsync(int propertyId);
@@ -47,22 +47,22 @@ namespace KasiRoomNetwork.Data.Interfaces
         // ===== Landlord Verification =====
         Task<IEnumerable<UnverifiedLandlordViewModel>>
             GetUnverifiedLandlordsAsync();
-        Task<AdminLandlordReviewViewModel>GetLandlordForVerificationAsync(
-            string landlordUserId, 
+        Task<AdminLandlordReviewViewModel> GetLandlordForVerificationAsync(
+            string landlordUserId,
             int landlordProfileId);
         Task VerifyLandlordAsync(
             string landlordUserId,
             int landlordProfileId,
             string adminUserId,
             bool isApproved,
-            string notes );
+            string notes);
 
         // ===== Audit Logs =====
-        Task<IEnumerable<AdminVerificationLogViewModel>> 
+        Task<IEnumerable<AdminVerificationLogViewModel>>
             GetVerificationLogsAsync();
 
         // ===== User Management =====
-        Task<IEnumerable<ManageUsersViewModel>> 
+        Task<IEnumerable<ManageUsersViewModel>>
             GetUsersAsync();
 
         Task<AdminUserDetailsViewModel>

@@ -1,10 +1,10 @@
-﻿using Kasi_Room_Network___KRN.Constants;
+using System.Security.Claims;
+using Kasi_Room_Network___KRN.Constants;
 using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -81,10 +81,46 @@ namespace Kasi_Room_Network___KRN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateListing(CreateListingViewModel model)
         {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
+
+            if (!hasCompleteProfile)
+            {
+                TempData["ProfilePrompt"] =
+                    "Complete your profile first to continue posting your room.";
+
+                return RedirectToAction(
+                    "MyProfile",
+                    "Profile",
+                    new
+                    {
+                        returnUrl = Url.Action(
+                            "CreateListing",
+                            "Listing",
+                            new { propertyId = model.PropertyId })
+                    });
+            }
+
+            var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            if (property.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
+            }
+
             if (!ModelState.IsValid)
             {
-                var property = await _propertyRepository.GetPropertyById(model.PropertyId);
-
                 model.PropertyName = property.PropertyName;
                 model.Suburb = property.Suburb;
                 model.City = property.City;
@@ -92,50 +128,38 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return View(model);
             }
 
-            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(landlordUserId))
-            {
-                return Challenge();
-            }
 
-            var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
-            if (!hasCompleteProfile)
-            {
-                TempData["ProfilePrompt"] = "Complete your profile first to continue posting your room.";
-                return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
-            }
-
-            var property = await _propertyRepository.GetPropertyById(model.PropertyId);
-            if (property == null)
-            {
-                return NotFound();
-            }
-            if (property.LandlordUserId != landlordUserId)
-            {
-                return Forbid();
-            }
 
             try
             {
-                int listingId = await _listingRepository.CreateListing(model, landlordUserId);
-                _logger.LogInformation("Created Listing for landlord {LandlordUserId}. Moving to Photos.",
-                    landlordUserId
-                );
-                return RedirectToAction(nameof(AddListingPhotos), new { listingId });
+                var listingId = await _listingRepository.CreateListing(
+                    model,
+                    landlordUserId);
+
+                _logger.LogInformation(
+                    "Created listing for landlord {LandlordUserId}. Moving to photos.",
+                    landlordUserId);
+
+                return RedirectToAction(
+                    nameof(AddListingPhotos),
+                    new { listingId });
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                     ex,
-                    "An unexpected error occurred while creating listing for landlord {LandlordUserId}.",
-                    landlordUserId
-                );
+                    "An unexpected error occurred while creating a listing " +
+                    "for landlord {LandlordUserId}.",
+                    landlordUserId);
 
-                ModelState.AddModelError("", "Unable to create listing at this time. Please try again later.");
-                var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Unable to create listing at this time. Please try again later.");
+
                 model.PropertyName = property.PropertyName;
                 model.Suburb = property.Suburb;
                 model.City = property.City;
+
                 return View(model);
             }
         }
@@ -216,7 +240,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 if (!added)
                 {
                     _logger.LogWarning(
-                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.", 
+                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.",
                             listingId
                     );
 
@@ -244,15 +268,16 @@ namespace Kasi_Room_Network___KRN.Controllers
                 ModelState.AddModelError("", ex.Message);
                 return View();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(!string.IsNullOrWhiteSpace(dbPath)){
+                if (!string.IsNullOrWhiteSpace(dbPath))
+                {
                     _photoStorageService.DeletePhoto(dbPath);
                 }
 
                 _logger.LogError(
                     ex,
-                    "Unexpected error while uploading photo for listing {listingId}.", 
+                    "Unexpected error while uploading photo for listing {listingId}.",
                     listingId
                 );
 
@@ -320,7 +345,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 _logger.LogInformation("Listing search. City={City}, Suburb={Suburb}, Province={Province}",
                     model.City,
-                    model.Suburb, 
+                    model.Suburb,
                     model.Province
                 );
                 model.Results =
@@ -404,7 +429,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 if (!updated)
                 {
                     _logger.LogWarning(
-                        "Landlord {LandlordUserId} Failed updating listing {listingId}", 
+                        "Landlord {LandlordUserId} Failed updating listing {listingId}",
                         model.ListingId,
                         landlordUserId
                     );
@@ -515,7 +540,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 if (!added)
                 {
                     _logger.LogWarning(
-                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.", 
+                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.",
                             listingId
                     );
 
@@ -531,29 +556,30 @@ namespace Kasi_Room_Network___KRN.Controllers
                 _logger.LogInformation("Photo uploaded successfully for listing {listingId}.", listingId);
 
                 TempData["SuccessMessage"] = "Photo uploaded successfully";
-            
+
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(
                     ex,
-                    "Photo validation failed for listing {ListingId}.", 
+                    "Photo validation failed for listing {ListingId}.",
                     listingId
                 );
 
                 ModelState.AddModelError("", ex.Message);
                 return View("ManageListingPhotos", viewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(!string.IsNullOrWhiteSpace(dbPath)){
+                if (!string.IsNullOrWhiteSpace(dbPath))
+                {
                     _photoStorageService.DeletePhoto(dbPath);
                 }
 
                 _logger.LogError(
                     ex,
-                    "Unexpected error while uploading photo for listing {listingId}.", 
+                    "Unexpected error while uploading photo for listing {listingId}.",
                     listingId
                 );
 
@@ -589,14 +615,14 @@ namespace Kasi_Room_Network___KRN.Controllers
             try
             {
                 _logger.LogInformation(
-                    "Deleting listing photo of {listingId} by Landlord {LandlordID}.", 
+                    "Deleting listing photo of {listingId} by Landlord {LandlordID}.",
                     listingId, landlordUserId
                 );
 
                 await _listingRepository.DeleteListingPhoto(photoId, listingId, landlordUserId);
-                
+
                 _logger.LogInformation(
-                    "Photo {PhotoID} Of listing {listingId} of Landlord {LandlordID} was deleted successfully.", 
+                    "Photo {PhotoID} Of listing {listingId} of Landlord {LandlordID} was deleted successfully.",
                     photoId, listingId, landlordUserId
                 );
 
@@ -615,7 +641,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
         }
-        
+
 
         [Authorize(Roles = "Landlord")]
         [HttpPost]
@@ -662,7 +688,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
 
-            
+
         }
     }
 }

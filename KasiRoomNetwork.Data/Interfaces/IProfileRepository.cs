@@ -1,9 +1,9 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Profiles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KasiRoomNetwork.Common.ViewModel.Profiles;
 
 namespace KasiRoomNetwork.Data.Interfaces
 {

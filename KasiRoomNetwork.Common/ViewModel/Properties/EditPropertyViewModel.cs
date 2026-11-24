@@ -1,5 +1,5 @@
-﻿using KasiRoomNetwork.Common.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using KasiRoomNetwork.Common.Models.Enums;
 
 namespace KasiRoomNetwork.Common.ViewModel.Properties
 {
