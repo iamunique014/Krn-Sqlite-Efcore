@@ -56,6 +56,14 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             var property = await _propertyRepository.GetPropertyById(propertyId);
+            if (property == null)
+            {
+                return NotFound();
+            }
+            if (property.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
+            }
 
             var model = new CreateListingViewModel
             {
@@ -95,6 +103,16 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 TempData["ProfilePrompt"] = "Complete your profile first to continue posting your room.";
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
+            }
+
+            var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+            if (property == null)
+            {
+                return NotFound();
+            }
+            if (property.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
             }
 
             try
@@ -366,6 +384,16 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             if (listing.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
+            }
+
+            var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+            if (property == null)
+            {
+                return NotFound();
+            }
+            if (listing.PropertyId != model.PropertyId || property.LandlordUserId != landlordUserId)
             {
                 return Forbid();
             }

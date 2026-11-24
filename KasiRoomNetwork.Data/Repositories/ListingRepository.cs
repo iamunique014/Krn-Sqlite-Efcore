@@ -16,6 +16,13 @@ namespace KasiRoomNetwork.Data.Repositories
 
         public async Task<int> CreateListing(CreateListingViewModel model, string landlordUserId)
         {
+            var ownsProperty = await _context.Properties.AnyAsync(p =>
+                p.PropertyId == model.PropertyId && p.LandlordId == landlordUserId && p.IsActive);
+            if (!ownsProperty)
+            {
+                throw new UnauthorizedAccessException("The landlord does not own the selected property.");
+            }
+
             var listing = new Listing
             {
                 LandlordUserId = landlordUserId,
@@ -125,7 +132,9 @@ namespace KasiRoomNetwork.Data.Repositories
 
         public async Task<bool> UpdateListing(EditListingViewModel model, string landlordUserId)
         {
-            var listing = await _context.Listings.FirstOrDefaultAsync(l => l.ListingId == model.ListingId && l.LandlordUserId == landlordUserId && l.IsActive);
+            var listing = await _context.Listings.FirstOrDefaultAsync(l =>
+                l.ListingId == model.ListingId && l.LandlordUserId == landlordUserId && l.IsActive &&
+                l.PropertyId == model.PropertyId && l.Property.LandlordId == landlordUserId && l.Property.IsActive);
             if (listing == null) return false;
             listing.Title = model.Title; listing.Price = model.Price; listing.AvailableUnits = model.AvailableUnits;
             listing.Description = model.Description; listing.IsAvailable = model.IsAvailable; listing.UpdatedAt = DateTime.UtcNow;
