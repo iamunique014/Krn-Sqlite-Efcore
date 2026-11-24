@@ -77,68 +77,92 @@ namespace Kasi_Room_Network___KRN.Controllers
         }
 
         [Authorize(Roles = "Landlord")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateListing(CreateListingViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> CreateListing(CreateListingViewModel model)
+{
+    var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                model.PropertyName = property.PropertyName;
-                model.Suburb = property.Suburb;
-                model.City = property.City;
+    if (string.IsNullOrWhiteSpace(landlordUserId))
+    {
+        return Challenge();
+    }
 
-                return View(model);
-            }
+    var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
 
-            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(landlordUserId))
-            {
-                return Challenge();
-            }
+    if (!hasCompleteProfile)
+    {
+        TempData["ProfilePrompt"] =
+            "Complete your profile first to continue posting your room.";
 
-            var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
-            if (!hasCompleteProfile)
+        return RedirectToAction(
+            "MyProfile",
+            "Profile",
+            new
             {
-                TempData["ProfilePrompt"] = "Complete your profile first to continue posting your room.";
-                return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
-            }
+                returnUrl = Url.Action(
+                    "CreateListing",
+                    "Listing",
+                    new { propertyId = model.PropertyId })
+            });
+    }
 
-            var property = await _propertyRepository.GetPropertyById(model.PropertyId);
-            if (property == null)
-            {
-                return NotFound();
-            }
-            if (property.LandlordUserId != landlordUserId)
-            {
-                return Forbid();
-            }
+    var property = await _propertyRepository.GetPropertyById(model.PropertyId);
 
-            try
-            {
-                int listingId = await _listingRepository.CreateListing(model, landlordUserId);
-                _logger.LogInformation("Created Listing for landlord {LandlordUserId}. Moving to Photos.",
-                    landlordUserId
-                );
-                return RedirectToAction(nameof(AddListingPhotos), new { listingId });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "An unexpected error occurred while creating listing for landlord {LandlordUserId}.",
-                    landlordUserId
-                );
+    if (property == null)
+    {
+        return NotFound();
+    }
 
-                ModelState.AddModelError("", "Unable to create listing at this time. Please try again later.");
-                var property = await _propertyRepository.GetPropertyById(model.PropertyId);
-                model.PropertyName = property.PropertyName;
-                model.Suburb = property.Suburb;
-                model.City = property.City;
-                return View(model);
-            }
-        }
+    if (property.LandlordUserId != landlordUserId)
+    {
+        return Forbid();
+    }
+
+    if (!ModelState.IsValid)
+    {
+        model.PropertyName = property.PropertyName;
+        model.Suburb = property.Suburb;
+        model.City = property.City;
+
+        return View(model);
+    }
+
+    
+
+    try
+    {
+        var listingId = await _listingRepository.CreateListing(
+            model,
+            landlordUserId);
+
+        _logger.LogInformation(
+            "Created listing for landlord {LandlordUserId}. Moving to photos.",
+            landlordUserId);
+
+        return RedirectToAction(
+            nameof(AddListingPhotos),
+            new { listingId });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(
+            ex,
+            "An unexpected error occurred while creating a listing " +
+            "for landlord {LandlordUserId}.",
+            landlordUserId);
+
+        ModelState.AddModelError(
+            string.Empty,
+            "Unable to create listing at this time. Please try again later.");
+
+        model.PropertyName = property.PropertyName;
+        model.Suburb = property.Suburb;
+        model.City = property.City;
+
+        return View(model);
+    }
+}
 
         // =========================
         // ADD PHOTOS
