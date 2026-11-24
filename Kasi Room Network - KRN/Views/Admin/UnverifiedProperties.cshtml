@@ -58,7 +58,7 @@ else
                     <tr>
                         <td><strong>@item.PropertyId</strong></td>
                         <td>@item.PropertyName</td>
-                        <td>@item.PropertyType</td>
+                        <td>@PropertyTypeDisplay.GetDisplayName(item.PropertyType)</td>
                         <td>@item.TotalRooms</td> 
                         <td>@item.Suburb, @item.City</td>
                         <td>@item.Province</td>
