@@ -150,7 +150,7 @@
 
                             <div class="col">
                                 <div class="fw-bold">
-                                    @Model.PropertyType
+                                    @PropertyTypeDisplay.GetDisplayName(Model.PropertyType)
                                 </div>
                                 <small class="text-muted">
                                     Type
@@ -264,7 +264,7 @@
 
                     <div class="mb-3">
                         <small class="text-muted">Type</small>
-                        <div class="fw-semibold">@Model.PropertyType</div>
+                        <div class="fw-semibold">@PropertyTypeDisplay.GetDisplayName(Model.PropertyType)</div>
                     </div>
 
                     <div>
