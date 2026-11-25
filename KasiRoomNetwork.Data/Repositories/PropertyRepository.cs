@@ -113,6 +113,7 @@ namespace KasiRoomNetwork.Data.Repositories
                 .Include(p => p.Landlord).ThenInclude(u => u!.UserProfile)
                 .Include(p => p.Landlord).ThenInclude(u => u!.LandlordProfile)
                 .Include(p => p.Photos)
+                .Include(p => p.Listings).ThenInclude(l => l.Photos)
                 .Include(p => p.PropertyAmenities).ThenInclude(a => a.Amenity)
                 .FirstOrDefaultAsync(p => p.PropertyId == propertyId && p.IsActive);
             if (property == null) return null;
@@ -142,6 +143,22 @@ namespace KasiRoomNetwork.Data.Repositories
                 //Photos
                 Photos = property.Photos.Where(p => p.IsActive).OrderByDescending(p => p.IsPrimary).ThenBy(p => p.PhotoId)
                     .Select(p => new PropertyPhotoViewModel { PhotoId = p.PhotoId, PhotoPath = p.PhotoPath, IsPrimary = p.IsPrimary }).ToList(),
+
+                //Room listings
+                Listings = property.Listings.Where(l => l.IsActive).OrderByDescending(l => l.CreatedAt)
+                    .Select(l => new PropertyListingViewModel
+                    {
+                        ListingId = l.ListingId,
+                        Title = l.Title,
+                        Price = l.Price,
+                        IsAvailable = l.IsAvailable,
+                        AvailableUnits = l.AvailableUnits,
+                        IsVerified = l.IsVerified,
+                        PrimaryPhoto = l.Photos.Where(p => p.IsActive && p.IsPrimary)
+                            .OrderBy(p => p.CreatedAt)
+                            .Select(p => p.PhotoPath)
+                            .FirstOrDefault() ?? string.Empty
+                    }).ToList(),
 
                 //Amenities
                 Amenities = property.PropertyAmenities.Where(a => a.Amenity.IsActive).Select(a => new AmenityModel
