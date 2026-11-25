@@ -1,0 +1,189 @@
+.management-page {
+    margin: 0 auto;
+    max-width: 1440px;
+}
+
+.management-alert {
+    border: 0;
+    border-radius: 14px;
+}
+
+.management-page-header,
+.property-workspace-header {
+    align-items: flex-end;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+}
+
+.management-back-link {
+    color: var(--bs-primary);
+    display: inline-flex;
+    font-size: .82rem;
+    font-weight: 650;
+    gap: .4rem;
+    margin-bottom: .9rem;
+    text-decoration: none;
+}
+
+.management-back-link:hover { color: var(--bs-primary); text-decoration: underline; }
+.management-page-title { color: #172033; font-size: clamp(1.8rem, 3vw, 2.45rem); font-weight: 750; letter-spacing: -.04em; margin: .35rem 0 .45rem; }
+.management-page-subtitle { color: #6b7280; font-size: 1rem; }
+
+.management-grid {
+    display: grid;
+    gap: 1.15rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.management-grid-listings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.management-card {
+    background: #fff;
+    border: 1px solid #e8ebf0;
+    border-radius: 18px;
+    overflow: hidden;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.management-card:hover {
+    border-color: rgba(var(--bs-primary-rgb), .35);
+    box-shadow: 0 .75rem 1.5rem rgba(23, 32, 51, .08);
+    transform: translateY(-2px);
+}
+
+.management-card-image {
+    background: #f7f9fc;
+    height: 190px;
+    overflow: hidden;
+    position: relative;
+}
+
+.management-card-image img { height: 100%; object-fit: cover; width: 100%; }
+.management-card-image-label,
+.management-status-badge {
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+    left: .8rem;
+    padding: .38rem .65rem;
+    position: absolute;
+    top: .8rem;
+}
+
+.management-card-image-label { background: rgba(255, 255, 255, .9); color: #364152; }
+.management-status-badge { left: auto; right: .8rem; }
+.management-status-available { background: #e7f8ef; color: #147442; }
+.management-status-occupied { background: #eef0f3; color: #5d6673; }
+
+.management-card-body { padding: 1.15rem; }
+.management-card-title { color: #172033; font-size: 1.05rem; font-weight: 750; margin: 0; }
+.management-card-meta { color: #6b7280; font-size: .8rem; }
+.management-card-count { color: var(--bs-primary); font-size: 1.15rem; font-weight: 750; white-space: nowrap; }
+.management-card-count small { color: #6b7280; font-size: .7rem; font-weight: 500; }
+.management-stat-row { align-items: center; border-bottom: 1px solid #e8ebf0; border-top: 1px solid #e8ebf0; color: #6b7280; display: flex; font-size: .76rem; gap: .75rem; justify-content: space-between; margin: 1rem 0; padding: .7rem 0; }
+.management-stat-row strong { color: #172033; }
+.management-card-actions { display: flex; gap: .5rem; }
+.management-card-actions .btn { white-space: nowrap; }
+.management-price { color: var(--bs-primary); font-size: 1.45rem; font-weight: 750; letter-spacing: -.03em; margin-top: .9rem; }
+.management-price small { color: #6b7280; font-size: .75rem; font-weight: 500; letter-spacing: 0; }
+
+.management-empty-state {
+    align-items: center;
+    background: #f7f9fc;
+    border: 1px dashed #d7dce5;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 310px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.management-summary-bar { background: #fff; border: 1px solid #e8ebf0; border-radius: 16px; display: flex; margin-bottom: 1.25rem; max-width: 620px; }
+.management-summary-bar div { flex: 1; padding: .85rem 1rem; text-align: center; }
+.management-summary-bar div + div { border-left: 1px solid #e8ebf0; }
+.management-summary-bar strong, .management-summary-bar span { display: block; }
+.management-summary-bar strong { color: #172033; font-size: 1.35rem; }
+.management-summary-bar span { color: #6b7280; font-size: .72rem; }
+.management-verification { border-radius: 999px; font-size: .68rem; font-weight: 700; padding: .35rem .55rem; white-space: nowrap; }
+.management-verification-approved { background: #e7f8ef; color: #147442; }
+.management-verification-pending { background: #fff5d8; color: #8b6812; }
+
+.property-workspace-header { align-items: flex-start; }
+.workspace-status { align-items: flex-start; border-radius: 14px; display: flex; gap: .75rem; padding: 1rem 1.1rem; }
+.workspace-status > i { font-size: 1.15rem; margin-top: .1rem; }
+.workspace-status div { display: flex; flex-direction: column; gap: .2rem; }
+.workspace-status span { color: #586273; font-size: .86rem; }
+.workspace-status-danger { background: #fff0f0; color: #b42318; }
+.workspace-status-warning { background: #fff8e8; color: #8b6812; }
+.workspace-status-success { background: #edf9f2; color: #17663b; }
+
+.property-gallery { background: #f7f9fc; border-radius: 18px; min-height: 360px; overflow: hidden; position: relative; }
+.property-gallery .carousel-inner, .property-gallery .carousel-item { height: 100%; min-height: 360px; }
+.property-gallery img { height: 100%; min-height: 360px; object-fit: cover; width: 100%; }
+.property-gallery-action { bottom: 1rem; left: 1rem; position: absolute; z-index: 2; }
+.property-gallery-empty { min-height: 360px; }
+.workspace-info-panel { background: #fff; border: 1px solid #e8ebf0; border-radius: 18px; padding: 1.3rem; }
+.workspace-section-heading { margin-bottom: 1rem; }
+.workspace-section-heading-inline { align-items: flex-start; display: flex; justify-content: space-between; gap: 1rem; }
+.workspace-section-heading h2 { color: #172033; font-weight: 750; letter-spacing: -.025em; margin: .25rem 0 0; }
+.workspace-info-grid { display: grid; gap: .9rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.workspace-info-grid div { background: #f7f9fc; border-radius: 12px; padding: .8rem; }
+.workspace-info-grid span, .workspace-info-grid strong { display: block; }
+.workspace-info-grid span { color: #6b7280; font-size: .72rem; margin-bottom: .25rem; }
+.workspace-info-grid strong { color: #172033; font-size: .88rem; }
+
+.workspace-listings-grid { display: grid; gap: 1rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.workspace-listing-card { border: 1px solid #e8ebf0; border-radius: 15px; overflow: hidden; }
+.workspace-listing-image { background: #f7f9fc; height: 150px; overflow: hidden; position: relative; }
+.workspace-listing-image img { height: 100%; object-fit: cover; width: 100%; }
+.workspace-listing-body { padding: 1rem; }
+.workspace-listing-title { color: #172033; font-size: .95rem; font-weight: 750; margin: 0; }
+.workspace-listing-price { color: var(--bs-primary); font-size: 1.25rem; font-weight: 750; letter-spacing: -.03em; margin: .75rem 0 .35rem; }
+.workspace-listing-price small { color: #6b7280; font-size: .7rem; font-weight: 500; letter-spacing: 0; }
+.workspace-listing-meta { color: #6b7280; font-size: .75rem; margin-bottom: .85rem; }
+.workspace-listing-actions { display: flex; gap: .45rem; }
+.workspace-listings-empty { align-items: center; background: #f7f9fc; border-radius: 14px; display: flex; gap: .8rem; padding: 1rem; }
+.workspace-listings-empty > i { color: var(--bs-primary); font-size: 1.35rem; }
+.workspace-listings-empty div { display: flex; flex: 1; flex-direction: column; gap: .2rem; }
+.workspace-listings-empty span { color: #6b7280; font-size: .8rem; }
+
+.workspace-action-grid { display: grid; gap: 1rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.workspace-action-card { background: #fff; border: 1px solid #e8ebf0; border-radius: 16px; color: #172033; display: flex; flex-direction: column; min-height: 180px; padding: 1.1rem; position: relative; text-decoration: none; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.workspace-action-card:hover { border-color: rgba(var(--bs-primary-rgb), .35); box-shadow: 0 .75rem 1.5rem rgba(23, 32, 51, .08); color: #172033; transform: translateY(-2px); }
+.workspace-action-card strong { font-size: .95rem; margin: .9rem 0 .35rem; }
+.workspace-action-card > span:not(.workspace-action-icon) { color: #6b7280; font-size: .78rem; line-height: 1.45; }
+.workspace-action-icon { align-items: center; border-radius: 11px; display: inline-flex; height: 38px; justify-content: center; width: 38px; }
+.workspace-action-icon-primary { background: #eaf2ff; color: #2563eb; }
+.workspace-action-icon-info { background: #e8f7fb; color: #087f9a; }
+.workspace-action-icon-warning { background: #fff5d8; color: #946c00; }
+.workspace-action-icon-success { background: #e9f8f0; color: #14804a; }
+.workspace-action-arrow { bottom: 1rem; color: var(--bs-primary); position: absolute; right: 1rem; }
+.amenity-group + .amenity-group { border-top: 1px solid #e8ebf0; margin-top: 1rem; padding-top: 1rem; }
+.amenity-group h3 { color: #6b7280; font-size: .75rem; font-weight: 700; letter-spacing: .06em; margin-bottom: .65rem; text-transform: uppercase; }
+.amenity-pill { background: #f7f9fc; border: 1px solid #e8ebf0; border-radius: 999px; color: #364152; font-size: .78rem; padding: .45rem .7rem; }
+.amenity-pill i { color: #14804a; }
+
+@media (max-width: 1100px) {
+    .management-grid, .management-grid-listings, .workspace-listings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .workspace-action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+    .management-page-header, .property-workspace-header { align-items: flex-start; flex-direction: column; }
+    .management-page-header > .btn, .property-workspace-header > .btn { width: 100%; }
+    .management-grid, .management-grid-listings, .workspace-listings-grid { grid-template-columns: 1fr; }
+    .management-summary-bar { width: 100%; }
+    .management-summary-bar div { padding: .7rem .4rem; }
+    .management-summary-bar span { font-size: .65rem; }
+    .workspace-action-grid { grid-template-columns: 1fr; }
+    .property-gallery, .property-gallery .carousel-inner, .property-gallery .carousel-item, .property-gallery img { min-height: 270px; }
+    .workspace-info-grid { gap: .6rem; }
+    .workspace-info-grid div { padding: .65rem; }
+    .workspace-section-heading-inline { align-items: flex-start; flex-direction: column; }
+    .workspace-listings-empty { align-items: flex-start; flex-wrap: wrap; }
+    .workspace-listings-empty .btn { margin-left: 2.15rem; }
+}

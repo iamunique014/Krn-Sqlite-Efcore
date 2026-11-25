@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
+using KasiRoomNetwork.Common.ViewModel.Landlord;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Data.Repositories;
@@ -61,19 +62,21 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            ViewBag.ProfileComplete = await _profileRepository.IsComplete(userId);
-
+            var profileComplete = await _profileRepository.IsComplete(userId);
             var profile = await _profileRepository.GetByUserId(userId);
+            var properties = (await _landlordRepository.GetAllPropertiesByLandlord(userId)).ToList();
+            var listings = (await _landlordRepository.GetAllLandlordListings(userId)).ToList();
 
-            ViewBag.ShowWhatsAppPrompt =
-                string.IsNullOrWhiteSpace(profile.LandlordProfile?.WhatsAppNumber);
+            var model = new PropertyManagementDashboardViewModel
+            {
+                ProfileComplete = profileComplete,
+                ShowWhatsAppPrompt = string.IsNullOrWhiteSpace(profile.LandlordProfile?.WhatsAppNumber),
+                UnreadMessages = await _messagingRepository.GetUnreadCount(userId),
+                Properties = properties,
+                Listings = listings
+            };
 
-            var properties = await _propertyRepository.GetPropertiesByUser(userId);
-
-            ViewBag.HasProperties = properties.Count != 0;
-
-            ViewBag.UnreadCount = await _messagingRepository.GetUnreadCount(userId);
-            return View();
+            return View(model);
         }
 
         [Authorize(Roles = "Landlord")]

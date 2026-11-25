@@ -33,8 +33,11 @@ namespace KasiRoomNetwork.Common.ViewModel.Properties
         public string PhoneNumber { get; set; }
         public string LandlordUserId { get; set; }
 
-        // Photos
+        //Photos
         public List<PropertyPhotoViewModel> Photos { get; set; } = new();
+
+        //Room listings belonging to this property
+        public List<PropertyListingViewModel> Listings { get; set; } = new();
 
         //Amenities
         public List<AmenityModel> Amenities { get; set; } = new();

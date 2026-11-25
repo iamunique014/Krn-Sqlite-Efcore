@@ -1,252 +1,221 @@
+@using System.Linq
+@model KasiRoomNetwork.Common.ViewModel.Landlord.PropertyManagementDashboardViewModel
+
 @{
-    ViewData["Title"] = "KRN - Landlord";
-
-    int UnreadMessages = ViewBag.UnreadCount ?? 0;
-    // int ActiveListings = ViewBag.ActiveListings ?? 0;
-    // int PendingVerification = ViewBag.PendingVerification ?? 0;
-    // int VerifiedListings = ViewBag.VerifiedListings ?? 0;
-
-    bool HasProperties = ViewBag.HasProperties ?? false;
-    bool ProfileComplete = ViewBag.ProfileComplete ?? false;
+    ViewData["Title"] = "Property Management";
 }
 
-<div class="container mt-4 mt-md-5">
+@section Styles
+{
+    <link rel="stylesheet" href="~/css/property-management-dashboard.css" asp-append-version="true" />
+}
 
+<div class="property-dashboard">
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success rounded-4 shadow-sm">
+        <div class="alert alert-success alert-dismissible fade show dashboard-alert" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
             @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-    <!-- Dashboard Summary -->
-    @*<div class="card rounded-4 shadow-sm border-0 mb-4">
-        <div class="card-body p-4">
 
-            <div class="d-flex justify-content-between align-items-center">
-
-                <div>
-                    <small class="text-muted text-uppercase">
-                        Inbox
-                    </small>
-
-                    <h2 class="fw-bold mb-1">
-                        @UnreadMessages
-                    </h2>
-
-                    <p class="text-muted mb-0">
-                        @(UnreadMessages == 1
-                            ? "Unread message"
-                            : "Unread messages")
-                    </p>
-                </div>
-
-                <div class="text-primary display-4">
-                    <i class="bi bi-chat-dots-fill"></i>
-                </div>
-
-            </div>
-
-            <hr />
-
-            <a asp-controller="Messages"
-            asp-action="Inbox"
-            class="btn btn-primary w-100">
-                <i class="bi bi-chat-left-text me-2"></i>
-                Open Inbox
+    <header class="dashboard-header mb-4">
+        <div>
+            <span class="dashboard-eyebrow">Kasi Room Network</span>
+            <h1 class="dashboard-title">Property Management</h1>
+            <p class="dashboard-subtitle mb-0">Keep your properties, room listings and tenant conversations moving.</p>
+        </div>
+        <div class="dashboard-header-actions">
+            <a asp-controller="Property"
+               asp-action="CreateProperty"
+               class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-building-add me-2"></i>Add property
             </a>
+            <a asp-controller="Property"
+               asp-action="MyProperties"
+               asp-route-mode="addlisting"
+               class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-plus-circle me-2"></i>Add room
+            </a>
+        </div>
+    </header>
 
+    @if (!Model.ProfileComplete)
+    {
+        <section class="dashboard-priority dashboard-priority-warning mb-4" aria-labelledby="profile-prompt-title">
+            <div class="dashboard-priority-icon"><i class="bi bi-person-vcard"></i></div>
+            <div class="flex-grow-1">
+                <h2 id="profile-prompt-title" class="h6 fw-bold mb-1">Complete your landlord profile</h2>
+                <p class="mb-0 text-muted">Add your details to unlock property and room posting.</p>
+            </div>
+            <a asp-controller="Profile" asp-action="MyProfile" class="btn btn-warning rounded-pill">Complete profile</a>
+        </section>
+    }
+
+    @if (Model.ProfileComplete && Model.ShowWhatsAppPrompt)
+    {
+        <section class="dashboard-priority dashboard-priority-info mb-4" aria-labelledby="whatsapp-prompt-title">
+            <div class="dashboard-priority-icon"><i class="bi bi-whatsapp"></i></div>
+            <div class="flex-grow-1">
+                <h2 id="whatsapp-prompt-title" class="h6 fw-bold mb-1">Make it easier for tenants to reach you</h2>
+                <p class="mb-0 text-muted">Add a WhatsApp number to your landlord profile.</p>
+            </div>
+            <a asp-controller="Profile" asp-action="MyProfile" class="btn btn-success rounded-pill">Add WhatsApp</a>
+        </section>
+    }
+
+    <section class="dashboard-metrics mb-4" aria-label="Portfolio summary">
+        <a asp-controller="Property" asp-action="MyProperties" class="dashboard-metric-card">
+            <span class="dashboard-metric-icon dashboard-metric-icon-primary"><i class="bi bi-buildings"></i></span>
+            <span class="dashboard-metric-label">Properties</span>
+            <strong class="dashboard-metric-value">@Model.PropertyCount</strong>
+            <span class="dashboard-metric-link">View portfolio <i class="bi bi-arrow-up-right"></i></span>
+        </a>
+
+        <a asp-controller="Landlord" asp-action="MyRooms" class="dashboard-metric-card">
+            <span class="dashboard-metric-icon dashboard-metric-icon-success"><i class="bi bi-door-open"></i></span>
+            <span class="dashboard-metric-label">Room listings</span>
+            <strong class="dashboard-metric-value">@Model.ListingCount</strong>
+            <span class="dashboard-metric-link">Manage listings <i class="bi bi-arrow-up-right"></i></span>
+        </a>
+
+        <a asp-controller="Landlord" asp-action="MyRooms" class="dashboard-metric-card">
+            <span class="dashboard-metric-icon dashboard-metric-icon-info"><i class="bi bi-door-open-fill"></i></span>
+            <span class="dashboard-metric-label">Available rooms</span>
+            <strong class="dashboard-metric-value">@Model.AvailableUnitCount</strong>
+            <span class="dashboard-metric-link">Check availability <i class="bi bi-arrow-up-right"></i></span>
+        </a>
+
+        <a asp-controller="Messages" asp-action="Inbox" class="dashboard-metric-card">
+            <span class="dashboard-metric-icon dashboard-metric-icon-purple"><i class="bi bi-chat-dots"></i></span>
+            <span class="dashboard-metric-label">Unread messages</span>
+            <strong class="dashboard-metric-value">@Model.UnreadMessages</strong>
+            <span class="dashboard-metric-link">Open inbox <i class="bi bi-arrow-up-right"></i></span>
+        </a>
+    </section>
+
+    <div class="row g-4 align-items-start">
+        <div class="col-12 col-xl-8">
+            <section class="dashboard-panel h-100" aria-labelledby="portfolio-title">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <span class="dashboard-section-kicker">Your portfolio</span>
+                        <h2 id="portfolio-title" class="h4 mb-1">Properties</h2>
+                        <p class="text-muted mb-0">Manage the properties where you list rooms.</p>
+                    </div>
+                    <a asp-controller="Property" asp-action="MyProperties" class="btn btn-sm btn-outline-primary rounded-pill">View all</a>
+                </div>
+
+                @if (Model.Properties.Count == 0)
+                {
+                    <div class="dashboard-empty-state">
+                        <div class="dashboard-empty-icon"><i class="bi bi-building-add"></i></div>
+                        <h3 class="h6 fw-bold">No properties yet</h3>
+                        <p class="text-muted mb-3">Create your first property to start adding room listings.</p>
+                        <a asp-controller="Property" asp-action="CreateProperty" class="btn btn-primary rounded-pill">Create property</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-property-list">
+                        @foreach (var property in Model.Properties.Take(4))
+                        {
+                            <article class="dashboard-property-row">
+                                <div class="dashboard-property-image">
+                                    <img src="@(string.IsNullOrWhiteSpace(property.PrimaryPhoto) ? "/images/no-image.png" : property.PrimaryPhoto)"
+                                         alt="@property.PropertyName" />
+                                </div>
+                                <div class="dashboard-property-content">
+                                    <h3 class="h6 fw-bold mb-1">@property.PropertyName</h3>
+                                    <p class="text-muted small mb-2">
+                                        <i class="bi bi-geo-alt me-1"></i>@property.Suburb, @property.City
+                                    </p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="dashboard-tag"><i class="bi bi-building me-1"></i>@PropertyTypeDisplay.GetDisplayName(property.PropertyType)</span>
+                                        <span class="dashboard-tag"><i class="bi bi-door-closed me-1"></i>@property.TotalRooms @(property.TotalRooms == 1 ? "room" : "rooms")</span>
+                                        <span class="dashboard-tag"><i class="bi bi-list-check me-1"></i>@property.TotalListings @(property.TotalListings == 1 ? "listing" : "listings")</span>
+                                    </div>
+                                </div>
+                                <a asp-controller="Property"
+                                   asp-action="PropertyDetails"
+                                   asp-route-propertyId="@property.PropertyId"
+                                   class="btn btn-sm btn-light rounded-pill align-self-center">
+                                    Open <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <section class="dashboard-panel h-100" aria-labelledby="listing-status-title">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <span class="dashboard-section-kicker">Listing health</span>
+                        <h2 id="listing-status-title" class="h4 mb-1">Room listings</h2>
+                    </div>
+                    <a asp-controller="Landlord" asp-action="MyRooms" class="btn btn-sm btn-outline-primary rounded-pill">Manage</a>
+                </div>
+
+                <div class="listing-status-summary">
+                    <div>
+                        <strong>@Model.AvailableListingCount</strong>
+                        <span>available listings</span>
+                    </div>
+                    <div>
+                        <strong>@Model.VerifiedListingCount</strong>
+                        <span>verified listings</span>
+                    </div>
+                </div>
+
+                @if (Model.PendingListingCount > 0)
+                {
+                    <div class="listing-status-note">
+                        <i class="bi bi-hourglass-split"></i>
+                        <span><strong>@Model.PendingListingCount</strong> listing@(Model.PendingListingCount == 1 ? " is" : "s are") waiting for verification.</span>
+                    </div>
+                }
+                else if (Model.ListingCount == 0)
+                {
+                    <div class="dashboard-empty-state dashboard-empty-state-compact">
+                        <div class="dashboard-empty-icon"><i class="bi bi-door-open"></i></div>
+                        <h3 class="h6 fw-bold">No room listings yet</h3>
+                        <p class="text-muted mb-3">Add a room to one of your properties.</p>
+                        <a asp-controller="Property" asp-action="MyProperties" asp-route-mode="addlisting" class="btn btn-primary btn-sm rounded-pill">Add a room</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="listing-status-note listing-status-note-success">
+                        <i class="bi bi-check-circle"></i>
+                        <span>Your current listings have no pending verification items.</span>
+                    </div>
+                }
+            </section>
         </div>
     </div>
-*@
 
-    @if (!ProfileComplete)
-    {
-        <div class="card border-warning shadow-sm mb-4">
-            <div class="card-body p-4">
-
-                <div class="text-warning fs-2 mb-3">
-                    <i class="bi bi-person-vcard"></i>
-                </div>
-
-                <h5 class="fw-bold mb-2">
-                    COMPLETE YOUR PROFILE
-                </h5>
-
-                <p class="text-muted mb-3">
-                    Add your details to unlock property and room posting.
-                </p>
-
-                <a asp-controller="Profile"
-                   asp-action="MyProfile"
-                   class="btn btn-primary">
-                    Complete Profile
-                </a>
-
-            </div>
-        </div>
-    }
-    else
-    {
-        @if (!HasProperties)
-        {
-            <a asp-controller="PostRoomWizard"
-               asp-action="Start"
-               class="text-decoration-none d-block mb-4">
-
-                <div class="card rounded-4 shadow-sm p-4 border-primary border-2">
-
-                    <div class="text-primary fs-2 mb-3">
-                        <i class="bi bi-house-add"></i>
-                    </div>
-
-                    <h5 class="fw-bold mb-2">
-                        POST YOUR FIRST ROOM
-                    </h5>
-
-                    <p class="text-muted mb-0">
-                        Create your first property and room listing.
-                    </p>
-
-                </div>
-
-            </a>
-        }
-        else
-        {
-            <div class="mb-4">
-
-                <h6 class="text-uppercase text-muted small fw-bold mb-3">
-                    Create
-                </h6>
-
-                <div class="row g-3">
-
-                    <div class="col-12 col-md-6">
-                        <a asp-controller="Property"
-                           asp-action="MyProperties"
-                           asp-route-mode="addlisting"
-                           class="text-decoration-none d-block">
-
-                            <div class="card rounded-4 shadow-sm p-4 border-primary border-2 h-100">
-
-                                <div class="text-primary fs-2 mb-3">
-                                    <i class="bi bi-plus-circle"></i>
-                                </div>
-
-                                <h5 class="fw-bold mb-2">
-                                    ADD ROOM
-                                </h5>
-
-                                <p class="text-muted mb-0">
-                                    Add a room listing to an existing property.
-                                </p>
-
-                            </div>
-
-                        </a>
-                    </div>
-
-                    <div class="col-12 col-md-6">
-                        <a asp-controller="CreateProperty"
-                           asp-action="Start"
-                           class="text-decoration-none d-block">
-
-                            <div class="card rounded-4 shadow-sm p-4 border-0 h-100">
-
-                                <div class="text-primary fs-2 mb-3">
-                                    <i class="bi bi-building-add"></i>
-                                </div>
-
-                                <h5 class="fw-bold mb-2">
-                                    ADD PROPERTY
-                                </h5>
-
-                                <p class="text-muted mb-0">
-                                    Add another property to your portfolio.
-                                </p>
-
-                            </div>
-
-                        </a>
-                    </div>
-
-                </div>
-
-            </div>
-        }
-
+    <section class="dashboard-quick-actions mt-4" aria-labelledby="quick-actions-title">
         <div>
-
-            <h6 class="text-uppercase text-muted small fw-bold mb-3">
-                Manage
-            </h6>
-
-            @if (ViewBag.ShowWhatsAppPrompt == true)
-            {
-                <div class="card border-warning mb-4">
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            Add WhatsApp Number
-                        </h5>
-
-                        <p class="text-muted mb-3">
-                            Allow tenants to contact you directly through WhatsApp.
-                        </p>
-
-                        <a asp-controller="Profile"
-                           asp-action="MyProfile"
-                           class="btn btn-success">
-                            Add Now
-                        </a>
-
-                    </div>
-                </div>
-            }
-
-            <div class="row g-3">
-
-                <div class="col-12 col-md-6">
-                    <a href="/Landlord/MyRooms"
-                       class="text-decoration-none d-block">
-
-                        <div class="card rounded-4 shadow-sm p-4 border-0 h-100">
-
-                            <div class="text-primary fs-3 mb-2">
-                                <i class="bi bi-door-open"></i>
-                            </div>
-
-                            <p class="mb-0 fw-semibold">
-                                MY ROOMS
-                            </p>
-
-                        </div>
-
-                    </a>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <a href="/Property/MyProperties"
-                       class="text-decoration-none d-block">
-
-                        <div class="card rounded-4 shadow-sm p-4 border-0 h-100">
-
-                            <div class="text-primary fs-3 mb-2">
-                                <i class="bi bi-building"></i>
-                            </div>
-
-                            <p class="mb-0 fw-semibold">
-                                MY PROPERTIES
-                            </p>
-
-                        </div>
-
-                    </a>
-                </div>
-
-            </div>
-
+            <span class="dashboard-section-kicker">Keep things moving</span>
+            <h2 id="quick-actions-title" class="h5 mb-1">Quick actions</h2>
         </div>
-    }
-
+        <div class="dashboard-quick-action-list">
+            <a asp-controller="Property" asp-action="CreateProperty" class="dashboard-quick-action">
+                <i class="bi bi-building-add"></i><span>Add property</span>
+            </a>
+            <a asp-controller="Property" asp-action="MyProperties" asp-route-mode="addlisting" class="dashboard-quick-action">
+                <i class="bi bi-plus-circle"></i><span>Add room</span>
+            </a>
+            <a asp-controller="Profile" asp-action="MyProfile" class="dashboard-quick-action">
+                <i class="bi bi-person-gear"></i><span>Update profile</span>
+            </a>
+            <a asp-controller="Messages" asp-action="Inbox" class="dashboard-quick-action">
+                <i class="bi bi-chat-left-text"></i><span>Open messages</span>
+            </a>
+        </div>
+    </section>
 </div>
